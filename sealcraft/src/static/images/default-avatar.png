@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#F5F5F5"/>
+  
+    <circle cx="200" cy="200" r="200" fill="#F0E0E0"/>
+    <circle cx="200" cy="160" r="60" fill="#C41A1A" opacity="0.6"/>
+    <ellipse cx="200" cy="310" rx="90" ry="60" fill="#C41A1A" opacity="0.4"/>
+    <text x="200" y="390" text-anchor="middle" font-size="14" fill="#999">默认头像</text>
+</svg>

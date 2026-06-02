@@ -1,0 +1,47 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "SealCraft", "navigationStyle": "custom" } },
+    { "path": "pages/knowledge/index", "style": { "navigationBarTitleText": "印章知识" } },
+    { "path": "pages/knowledge/seal-type-detail", "style": { "navigationBarTitleText": "印章类型" } },
+    { "path": "pages/knowledge/material-detail", "style": { "navigationBarTitleText": "材质详情" } },
+    { "path": "pages/knowledge/font-detail", "style": { "navigationBarTitleText": "字体详情" } },
+    { "path": "pages/design/index", "style": { "navigationBarTitleText": "设计工作台", "navigationStyle": "custom" } },
+    { "path": "pages/design/preview", "style": { "navigationBarTitleText": "效果预览" } },
+    { "path": "pages/design/ink-effect", "style": { "navigationBarTitleText": "印泥效果" } },
+    { "path": "pages/design/material-compare", "style": { "navigationBarTitleText": "材质对比" } },
+    { "path": "pages/booking/index", "style": { "navigationBarTitleText": "我的预约" } },
+    { "path": "pages/booking/studio-list", "style": { "navigationBarTitleText": "附近工作室" } },
+    { "path": "pages/booking/studio-detail", "style": { "navigationBarTitleText": "工作室详情" } },
+    { "path": "pages/booking/create", "style": { "navigationBarTitleText": "创建预约" } },
+    { "path": "pages/booking/confirmation", "style": { "navigationBarTitleText": "预约确认" } },
+    { "path": "pages/progress/index", "style": { "navigationBarTitleText": "制作进度" } },
+    { "path": "pages/progress/detail", "style": { "navigationBarTitleText": "进度详情" } },
+    { "path": "pages/collection/index", "style": { "navigationBarTitleText": "印章库" } },
+    { "path": "pages/collection/detail", "style": { "navigationBarTitleText": "印章详情" } },
+    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "我的", "navigationStyle": "custom" } },
+    { "path": "pages/profile/settings", "style": { "navigationBarTitleText": "设置" } },
+    { "path": "pages/profile/account", "style": { "navigationBarTitleText": "账户管理" } },
+    { "path": "pages/profile/privacy", "style": { "navigationBarTitleText": "隐私设置" } },
+    { "path": "pages/login/index", "style": { "navigationBarTitleText": "登录", "navigationStyle": "custom" } },
+    { "path": "pages/webview/index", "style": { "navigationBarTitleText": "" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "SealCraft",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#FBF8F5"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#C41A1A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tabbar/home.png", "selectedIconPath": "static/tabbar/home-active.png" },
+      { "pagePath": "pages/knowledge/index", "text": "知识", "iconPath": "static/tabbar/knowledge.png", "selectedIconPath": "static/tabbar/knowledge-active.png" },
+      { "pagePath": "pages/design/index", "text": "设计", "iconPath": "static/tabbar/design.png", "selectedIconPath": "static/tabbar/design-active.png" },
+      { "pagePath": "pages/booking/index", "text": "预约", "iconPath": "static/tabbar/booking.png", "selectedIconPath": "static/tabbar/booking-active.png" },
+      { "pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/tabbar/profile.png", "selectedIconPath": "static/tabbar/profile-active.png" }
+    ]
+  }
+}

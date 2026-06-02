@@ -1,0 +1,27 @@
+{
+  "name": "CampReady",
+  "appid": "",
+  "description": "露营装备清单管理",
+  "versionName": "1.0.0",
+  "versionCode": 100,
+  "transformPx": false,
+  "app-plus": {
+    "modules": {},
+    "distribute": {
+      "icons": {},
+      "splashscreen": {}
+    }
+  },
+  "app-harmony": {
+    "enable": true,
+    "package": "com.campready.app",
+    "appName": "CampReady",
+    "debug": true
+  },
+  "h5": {
+    "title": "CampReady",
+    "router": {
+      "mode": "hash"
+    }
+  }
+}

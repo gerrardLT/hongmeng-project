@@ -1,0 +1,347 @@
+/**
+ * ColorAid 鸿蒙负一屏服务卡片 UTS 插件
+ *
+ * 本插件仅在鸿蒙端（APP-HARMONY）编译运行，提供服务卡片的数据获取、更新和点击跳转能力。
+ * 由于 UTS 在鸿蒙端编译为 ArkTS，可直接调用鸿蒙原生 API。
+ *
+ * 注意：服务卡片实际运行需要在鸿蒙真机或模拟器环境中测试，
+ * 此处为完整的接口结构和模拟实现。
+ */
+
+// ============================================
+// 类型定义
+// ============================================
+
+/**
+ * 最近识别的颜色项
+ */
+interface RecentColorItem {
+  /** 颜色名称 */
+  name: string
+  /** 颜色 hex 值 */
+  hex: string
+}
+
+/**
+ * 服务卡片展示数据接口
+ */
+export interface WidgetData {
+  /** 当前滤镜模式名称 */
+  filterMode: string
+  /** 当前增强强度（1-10） */
+  filterStrength: number
+  /** 最近识别的3个颜色 */
+  recentColors: Array<RecentColorItem>
+  /** 用户色盲类型 */
+  colorBlindType: string
+  /** 卡片尺寸：'2*2' 或 '4*2' */
+  dimension: string
+}
+
+// ============================================
+// 本地存储键名（与 App 端保持一致）
+// ============================================
+
+const STORAGE_KEYS = {
+  SETTINGS: 'coloraid_settings',
+  HISTORIES: 'coloraid_histories',
+  WIDGET_DATA: 'coloraid_widget_data',
+  WIDGET_CLICK_TIME: 'coloraid_widget_click_time'
+}
+
+// ============================================
+// 内部工具函数
+// ============================================
+
+/**
+ * 滤镜模式中文映射表
+ */
+const FILTER_MODE_MAP: Record<string, string> = {
+  'protanopia': '红色盲滤镜',
+  'deuteranopia': '绿色盲滤镜',
+  'tritanopia': '蓝色盲滤镜',
+  'achromatopsia': '全色盲滤镜',
+  'normal': '正常视觉',
+  '': '未开启'
+}
+
+/**
+ * 色盲类型中文映射表
+ */
+const COLOR_BLIND_TYPE_MAP: Record<string, string> = {
+  'protanopia': '红色盲',
+  'deuteranopia': '绿色盲',
+  'tritanopia': '蓝色盲',
+  'achromatopsia': '全色盲',
+  'normal': '正常视觉'
+}
+
+/**
+ * 从本地存储读取对象数据
+ * @param key 存储键名
+ * @returns 解析后的对象，失败返回 null
+ */
+function getStorageObject<T>(key: string): T | null {
+  try {
+    const raw = uni.getStorageSync(key)
+    if (!raw) return null
+    // uni.getStorageSync 在不同平台可能返回字符串或已解析对象
+    if (typeof raw === 'string') return JSON.parse(raw) as T
+    return raw as T
+  } catch (e) {
+    console.error('[coloraid-widget] getStorageObject error:', e)
+    return null
+  }
+}
+
+/**
+ * 从本地存储读取当前滤镜设置
+ * @returns 设置对象，失败返回默认值
+ */
+function getCurrentSettings(): { filterMode: string; filterStrength: number; colorBlindType: string } {
+  try {
+    const settings = getStorageObject<Record<string, any>>(STORAGE_KEYS.SETTINGS)
+    if (settings) {
+      const mode = settings.filterMode as string | null | undefined
+      return {
+        filterMode: mode || '未开启',
+        filterStrength: (settings.filterStrength as number) || 5,
+        colorBlindType: (settings.colorBlindType as string) || 'normal'
+      }
+    }
+  } catch (e) {
+    console.error('[coloraid-widget] getCurrentSettings error:', e)
+  }
+  return {
+    filterMode: '未开启',
+    filterStrength: 5,
+    colorBlindType: 'normal'
+  }
+}
+
+/**
+ * 从本地存储获取最近识别的 3 个颜色
+ * @returns 最近颜色数组
+ */
+function getRecentColors(): Array<RecentColorItem> {
+  try {
+    const histories = getStorageObject<Record<string, any>>(STORAGE_KEYS.HISTORIES)
+    if (!histories) return []
+
+    const colors = Object.values(histories)
+      .filter((h: any) => h && h.color)
+      .sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0))
+      .slice(0, 3)
+      .map((h: any) => ({
+        name: (h.color.name as string) || '未知颜色',
+        hex: (h.color.hex as string) || '#999999'
+      }))
+
+    return colors
+  } catch (e) {
+    console.error('[coloraid-widget] getRecentColors error:', e)
+    return []
+  }
+}
+
+/**
+ * 获取色盲类型的中文名称
+ * @param type 色盲类型标识
+ * @returns 中文名称
+ */
+function getColorBlindTypeName(type: string): string {
+  return COLOR_BLIND_TYPE_MAP[type] || '未知类型'
+}
+
+/**
+ * 获取滤镜模式的中文名称
+ * @param mode 滤镜模式标识
+ * @returns 中文名称
+ */
+function getFilterModeName(mode: string): string {
+  return FILTER_MODE_MAP[mode] || mode || '未开启'
+}
+
+// ============================================
+// 对外接口
+// ============================================
+
+/**
+ * 获取卡片展示数据
+ *
+ * 从 App 本地存储中读取滤镜设置、最近识别颜色和色盲类型，
+ * 组装为 WidgetData 返回给服务卡片使用。
+ *
+ * @returns WidgetData 卡片展示数据
+ */
+export function getWidgetData(): WidgetData {
+  const settings = getCurrentSettings()
+  const recentColors = getRecentColors()
+
+  const data: WidgetData = {
+    filterMode: getFilterModeName(settings.filterMode),
+    filterStrength: settings.filterStrength,
+    recentColors: recentColors,
+    colorBlindType: getColorBlindTypeName(settings.colorBlindType),
+    dimension: '2*2'
+  }
+
+  // 将当前卡片数据缓存到本地，供卡片刷新时使用
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[coloraid-widget] cache widget data error:', e)
+  }
+
+  console.log('[coloraid-widget] getWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 更新服务卡片内容
+ *
+ * 将最新的 WidgetData 同步到鸿蒙服务卡片。
+ * 实际实现中需要调用鸿蒙 FormManager 的 updateForm 接口。
+ *
+ * @param data 最新的卡片展示数据（可仅传入部分字段，缺失字段从本地存储补全）
+ */
+export function updateWidget(data: Partial<WidgetData>): void {
+  // 1. 补全缺失字段
+  const settings = getCurrentSettings()
+  const recentColors = getRecentColors()
+
+  const fullData: WidgetData = {
+    filterMode: data.filterMode || getFilterModeName(settings.filterMode),
+    filterStrength: data.filterStrength ?? settings.filterStrength,
+    recentColors: data.recentColors || recentColors,
+    colorBlindType: data.colorBlindType || getColorBlindTypeName(settings.colorBlindType),
+    dimension: data.dimension || '2*2'
+  }
+
+  // 2. 缓存到本地存储
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, fullData)
+  } catch (e) {
+    console.error('[coloraid-widget] cache widget data error:', e)
+  }
+
+  // 3. 调用鸿蒙原生接口更新服务卡片（模拟实现）
+  // 实际真机环境中，需要通过 FormManager 获取当前 formId 并触发更新
+  // 示例：
+  // import formManager from '@ohos.app.form.formManager';
+  // formManager.updateForm(formId, formBindingData.createFormBindingData(fullData));
+
+  console.log('[coloraid-widget] updateWidget:', JSON.stringify(fullData))
+
+  // 4. 触发自定义事件通知卡片刷新（UTS 层向 ArkUI 卡片通信）
+  try {
+    uni.$emit('coloraid_widget_data_changed', fullData)
+  } catch (e) {
+    console.error('[coloraid-widget] emit widget update error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理
+ *
+ * 用户点击服务卡片时，唤起 ColorAid App 并跳转到实时滤镜页面。
+ * 实际实现中需要调用鸿蒙 Want 机制进行应用跳转。
+ */
+export function onWidgetClick(): void {
+  console.log('[coloraid-widget] widget clicked, launching app...')
+
+  // 记录点击时间，App 启动时读取并跳转对应页面
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_CLICK_TIME, Date.now())
+    uni.setStorageSync('coloraid_widget_target_page', '/pages/filter/index')
+  } catch (e) {
+    console.error('[coloraid-widget] record click time error:', e)
+  }
+
+  // 实际真机环境中，应使用如下方式启动应用：
+  // import Want from '@ohos.app.ability.Want';
+  // const want: Want = {
+  //   bundleName: 'com.coloraid.app',
+  //   abilityName: 'EntryAbility',
+  //   parameters: {
+  //     fromWidget: true,
+  //     targetPage: '/pages/filter/index',
+  //     autoStartFilter: true
+  //   }
+  // };
+  // context.startAbility(want);
+}
+
+/**
+ * 卡片生命周期：首次创建
+ *
+ * 服务卡片被添加到桌面/负一屏时调用，初始化卡片数据。
+ */
+export function onWidgetCreate(): void {
+  console.log('[coloraid-widget] widget created')
+  getWidgetData()
+}
+
+/**
+ * 卡片生命周期：销毁
+ *
+ * 服务卡片被移除时调用，执行清理操作。
+ */
+export function onWidgetDestroy(): void {
+  console.log('[coloraid-widget] widget destroyed')
+  try {
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_DATA)
+  } catch (e) {
+    console.error('[coloraid-widget] cleanup error:', e)
+  }
+}
+
+/**
+ * 快捷操作处理
+ *
+ * 用户点击卡片上的快捷操作按钮时触发。
+ * 支持 action: 'toggleFilter'（切换滤镜开关）、'openCamera'（打开相机识别）。
+ *
+ * @param action 快捷操作标识
+ */
+export function onQuickAction(action: string): void {
+  console.log('[coloraid-widget] quick action:', action)
+
+  try {
+    uni.setStorageSync('coloraid_widget_quick_action', action)
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_CLICK_TIME, Date.now())
+  } catch (e) {
+    console.error('[coloraid-widget] record quick action error:', e)
+  }
+
+  if (action === 'toggleFilter') {
+    // 切换滤镜开关：App 启动时读取此标记，自动启用/禁用滤镜
+    try {
+      const settings = getCurrentSettings()
+      const newMode = settings.filterMode === '未开启' || !settings.filterMode ? 'protanopia' : '未开启'
+      uni.setStorageSync('coloraid_widget_auto_toggle', newMode)
+    } catch (e) {
+      console.error('[coloraid-widget] toggle filter error:', e)
+    }
+  } else if (action === 'openCamera') {
+    // 打开相机识别页面
+    try {
+      uni.setStorageSync('coloraid_widget_target_page', '/pages/identify/index')
+    } catch (e) {
+      console.error('[coloraid-widget] set target page error:', e)
+    }
+  }
+
+  // 实际真机环境中，通过 Want 机制启动应用并传递参数：
+  // import Want from '@ohos.app.ability.Want';
+  // const want: Want = {
+  //   bundleName: 'com.coloraid.app',
+  //   abilityName: 'EntryAbility',
+  //   parameters: {
+  //     fromWidget: true,
+  //     quickAction: action,
+  //     autoStartFilter: action === 'toggleFilter'
+  //   }
+  // };
+  // context.startAbility(want);
+}

@@ -1,0 +1,232 @@
+/**
+ * AquaLog 鸿蒙负一屏服务卡片 UTS 插件
+ *
+ * 本插件仅在鸿蒙端（APP-HARMONY）编译运行，提供服务卡片的数据获取、更新和点击跳转能力。
+ * 由于 UTS 在鸿蒙端编译为 ArkTS，可直接调用鸿蒙原生 API。
+ *
+ * 数据来源：从 App 本地存储中读取水族箱信息和水质参数，
+ * 组装为 WidgetData 展示在负一屏卡片上。
+ */
+
+// ============================================
+// 类型定义
+// ============================================
+
+/**
+ * 服务卡片展示数据接口
+ */
+export interface WidgetData {
+  /** 水族箱总数 */
+  totalAquariums: number
+  /** 有异常的水族箱数 */
+  alertCount: number
+  /** 水族箱名称和状态列表（最多3个） */
+  aquariumList: Array<{ name: string; status: string }>
+  /** 最近记录时间 */
+  lastRecordTime: string
+}
+
+// ============================================
+// 本地存储键名（与 App 端保持一致，使用 aqualog_db_ 前缀）
+// ============================================
+
+const STORAGE_KEYS = {
+  /** 水族箱数据集合 */
+  AQUARIUMS: 'aqualog_db_aquariums',
+  /** 水质参数记录集合 */
+  PARAMETER_RECORDS: 'aqualog_db_parameter_records',
+  /** 预警数据集合 */
+  ALERTS: 'aqualog_db_alerts',
+  /** 卡片缓存数据 */
+  WIDGET_DATA: 'aqualog_widget_data'
+}
+
+// ============================================
+// 内部工具函数
+// ============================================
+
+/**
+ * 从本地存储读取对象数据
+ * @param key 存储键名
+ * @returns 解析后的对象，失败返回 null
+ */
+function getStorageObject<T>(key: string): T | null {
+  try {
+    const raw = uni.getStorageSync(key)
+    if (!raw) return null
+    // uni.getStorageSync 在不同平台可能返回字符串或已解析对象
+    if (typeof raw === 'string') return JSON.parse(raw) as T
+    return raw as T
+  } catch (e) {
+    console.error('[aqualog-widget] getStorageObject error:', e)
+    return null
+  }
+}
+
+/**
+ * 获取水族箱列表
+ * 从本地存储中读取所有水族箱数据，返回数组形式
+ */
+function getAquariumList(): any[] {
+  const aquariums = getStorageObject<Record<string, any>>(STORAGE_KEYS.AQUARIUMS)
+  if (!aquariums) return []
+  return Object.values(aquariums)
+}
+
+/**
+ * 获取活跃预警数
+ * 从预警集合中筛选出未处理/活跃状态的预警数量
+ */
+function getAlertCount(): number {
+  const alerts = getStorageObject<Record<string, any>>(STORAGE_KEYS.ALERTS)
+  if (!alerts) return 0
+
+  return Object.values(alerts).filter(
+    (a: any) => a.status === 'active' || a.status === 'unread'
+  ).length
+}
+
+/**
+ * 获取最近一次水质记录时间
+ * 从所有参数记录中取最新的记录时间
+ */
+function getLastRecordTime(): string {
+  const records = getStorageObject<Record<string, any>>(STORAGE_KEYS.PARAMETER_RECORDS)
+  if (!records) return ''
+
+  const times = Object.values(records)
+    .map((r: any) => r.recordTime || r.createdAt || '')
+    .filter(Boolean)
+    .sort()
+    .reverse()
+
+  return times.length > 0 ? times[0] : ''
+}
+
+// ============================================
+// 对外导出接口
+// ============================================
+
+/**
+ * 获取卡片展示数据
+ *
+ * 从 App 本地存储中读取水族箱信息和水质参数状态，
+ * 组装为 WidgetData 返回给服务卡片渲染使用。
+ *
+ * @returns WidgetData 卡片展示数据
+ */
+export function getWidgetData(): WidgetData {
+  const aquariums = getAquariumList()
+  const data: WidgetData = {
+    totalAquariums: aquariums.length,
+    alertCount: getAlertCount(),
+    aquariumList: aquariums.slice(0, 3).map((a: any) => ({
+      name: a.name || a.nickname || '未命名水族箱',
+      status: a.status || '正常'
+    })),
+    lastRecordTime: getLastRecordTime()
+  }
+
+  // 将当前卡片数据缓存到本地，供卡片定时刷新时使用
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[aqualog-widget] cache widget data error:', e)
+  }
+
+  console.log('[aqualog-widget] getWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 更新服务卡片内容
+ *
+ * 将最新的 WidgetData 同步到鸿蒙服务卡片。
+ * 实际实现中需要调用鸿蒙 FormManager 的 updateForm 接口。
+ *
+ * @param data 最新的卡片展示数据
+ */
+export function updateWidget(data: WidgetData): void {
+  // 1. 先缓存到本地存储
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[aqualog-widget] cache widget data error:', e)
+  }
+
+  // 2. 调用鸿蒙原生接口更新服务卡片（模拟实现）
+  // 实际真机环境中，需要通过 FormManager 获取当前 formId 并触发更新
+  // 示例：
+  // import formManager from '@ohos.app.form.formManager';
+  // import formBindingData from '@ohos.app.form.formBindingData';
+  // formManager.updateForm(formId, formBindingData.createFormBindingData(data));
+
+  console.log('[aqualog-widget] updateWidget:', JSON.stringify(data))
+
+  // 触发自定义事件通知卡片刷新（UTS 层向 ArkUI 卡片通信）
+  try {
+    uni.$emit('aqualog_widget_data_changed', data)
+  } catch (e) {
+    console.error('[aqualog-widget] emit widget update error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理
+ *
+ * 用户点击服务卡片时，唤起 AquaLog App 并跳转到首页。
+ * 实际实现中需要调用鸿蒙 Want 机制进行应用跳转。
+ */
+export function onWidgetClick(): void {
+  console.log('[aqualog-widget] widget clicked, launching app...')
+
+  // 鸿蒙端通过 Want 机制启动应用
+  // 记录点击时间和目标页面，App 启动时读取并跳转
+  try {
+    uni.setStorageSync('aqualog_widget_click_time', Date.now())
+    uni.setStorageSync('aqualog_widget_target_page', '/pages/index/index')
+  } catch (e) {
+    console.error('[aqualog-widget] record click time error:', e)
+  }
+
+  // 实际真机环境中，应使用如下方式启动应用：
+  // import Want from '@ohos.app.ability.Want';
+  // const want: Want = {
+  //   bundleName: 'com.aqualog.app',
+  //   abilityName: 'EntryAbility',
+  //   parameters: {
+  //     fromWidget: true,
+  //     targetPage: '/pages/index/index'
+  //   }
+  // };
+  // context.startAbility(want);
+}
+
+/**
+ * 卡片生命周期：首次创建
+ *
+ * 服务卡片被添加到桌面/负一屏时调用，初始化卡片数据。
+ * 此时应从本地存储加载最新数据并渲染到卡片上。
+ */
+export function onWidgetCreate(): void {
+  console.log('[aqualog-widget] widget created, initializing data...')
+  // 首次创建时获取并缓存最新数据
+  getWidgetData()
+}
+
+/**
+ * 卡片生命周期：销毁
+ *
+ * 服务卡片被移除时调用，执行清理操作。
+ * 清除卡片相关的缓存数据，释放存储空间。
+ */
+export function onWidgetDestroy(): void {
+  console.log('[aqualog-widget] widget destroyed, cleaning up...')
+  try {
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_DATA)
+    uni.removeStorageSync('aqualog_widget_click_time')
+    uni.removeStorageSync('aqualog_widget_target_page')
+  } catch (e) {
+    console.error('[aqualog-widget] cleanup error:', e)
+  }
+}

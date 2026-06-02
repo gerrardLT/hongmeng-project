@@ -1,0 +1,190 @@
+/**
+ * CampReady 鸿蒙负一屏服务卡片 UTS 插件
+ *
+ * 本插件仅在鸿蒙端（APP-HARMONY）编译运行，提供服务卡片的数据获取、更新和点击跳转能力。
+ */
+
+// ============================================
+// 类型定义
+// ============================================
+
+export interface WidgetData {
+  /** 清单名称 */
+  campingName: string
+  /** 距离露营天数 */
+  daysUntil: number
+  /** 准备进度（0-100） */
+  progress: number
+  /** 装备总数 */
+  totalItems: number
+  /** 已勾选数 */
+  checkedItems: number
+  /** 露营日期 */
+  campingDate: string
+}
+
+// ============================================
+// 存储键名
+// ============================================
+
+const STORAGE_KEYS = {
+  CHECKLISTS: 'campready_checklists',
+  WIDGET_DATA: 'campready_widget_data'
+}
+
+// ============================================
+// 工具函数
+// ============================================
+
+function getStorageObject<T>(key: string): T | null {
+  try {
+    const raw = uni.getStorageSync(key)
+    if (!raw) return null
+    if (typeof raw === 'string') return JSON.parse(raw) as T
+    return raw as T
+  } catch (e) {
+    console.error('[campready-widget] getStorageObject error:', e)
+    return null
+  }
+}
+
+function calcDaysUntil(dateStr: string): number {
+  try {
+    const target = new Date(dateStr)
+    const now = new Date()
+    target.setHours(0, 0, 0, 0)
+    now.setHours(0, 0, 0, 0)
+    const diff = target.getTime() - now.getTime()
+    return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  } catch (e) {
+    return -1
+  }
+}
+
+function getPreparingChecklist(): Record<string, any> | null {
+  const data = getStorageObject<Record<string, any>>(STORAGE_KEYS.CHECKLISTS)
+  if (!data) return null
+
+  // data is the stored checklists state, which contains a checklists array
+  const checklists = (data.checklists as any[]) || []
+  
+  // Find the nearest preparing checklist
+  const preparing = checklists
+    .filter((c: any) => c.status === 'preparing')
+    .sort((a: any, b: any) => {
+      const dateA = new Date(a.campingDate || '9999-12-31').getTime()
+      const dateB = new Date(b.campingDate || '9999-12-31').getTime()
+      return dateA - dateB
+    })
+
+  return preparing.length > 0 ? preparing[0] : null
+}
+
+// ============================================
+// 对外接口
+// ============================================
+
+export function getWidgetData(): WidgetData {
+  const checklist = getPreparingChecklist()
+
+  if (!checklist) {
+    const data: WidgetData = {
+      campingName: '暂无露营计划',
+      daysUntil: -1,
+      progress: 0,
+      totalItems: 0,
+      checkedItems: 0,
+      campingDate: ''
+    }
+    try {
+      uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+    } catch (e) {
+      console.error('[campready-widget] cache widget data error:', e)
+    }
+    console.log('[campready-widget] getWidgetData:', JSON.stringify(data))
+    return data
+  }
+
+  const items = (checklist.items as any[]) || []
+  const totalItems = items.length
+  const checkedItems = items.filter((i: any) => i.isChecked).length
+  const progress = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0
+  const campingDate = (checklist.campingDate as string) || ''
+  const daysUntil = campingDate ? calcDaysUntil(campingDate) : -1
+
+  const data: WidgetData = {
+    campingName: (checklist.name as string) || '未命名清单',
+    daysUntil,
+    progress,
+    totalItems,
+    checkedItems,
+    campingDate
+  }
+
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[campready-widget] cache widget data error:', e)
+  }
+
+  console.log('[campready-widget] getWidgetData:', JSON.stringify(data))
+  return data
+}
+
+export function updateWidget(data: WidgetData): void {
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[campready-widget] cache widget data error:', e)
+  }
+
+  console.log('[campready-widget] updateWidget:', JSON.stringify(data))
+
+  try {
+    uni.$emit('campready_widget_data_changed', data)
+  } catch (e) {
+    console.error('[campready-widget] emit widget update error:', e)
+  }
+}
+
+export function onWidgetClick(): void {
+  console.log('[campready-widget] widget clicked, launching app to home...')
+  try {
+    uni.setStorageSync('campready_widget_click', {
+      time: Date.now(),
+      target: '/pages/index/index'
+    })
+  } catch (e) {
+    console.error('[campready-widget] record click error:', e)
+  }
+}
+
+export function onWidgetClickChecklist(): void {
+  console.log('[campready-widget] widget clicked, launching app to checklist...')
+  try {
+    const checklist = getPreparingChecklist()
+    const target = checklist
+      ? `/pages/checklists/detail?id=${checklist.checklistId}`
+      : '/pages/checklists/index'
+    uni.setStorageSync('campready_widget_click', {
+      time: Date.now(),
+      target
+    })
+  } catch (e) {
+    console.error('[campready-widget] record click error:', e)
+  }
+}
+
+export function onWidgetCreate(): void {
+  console.log('[campready-widget] widget created')
+  getWidgetData()
+}
+
+export function onWidgetDestroy(): void {
+  console.log('[campready-widget] widget destroyed')
+  try {
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_DATA)
+  } catch (e) {
+    console.error('[campready-widget] cleanup error:', e)
+  }
+}

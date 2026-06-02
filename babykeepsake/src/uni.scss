@@ -1,0 +1,37 @@
+// BabyKeepsake 全局设计变量
+
+// ===== 色彩系统 =====
+$primary: #FF6B35;
+$primary-light: #FF8C5A;
+$primary-dark: #E55A2B;
+
+// 页面与卡片背景
+$bg-page: #F5F5F5;
+$bg-card: #FFFFFF;
+
+// 文字色
+$text-primary: #212121;
+$text-secondary: #757575;
+$text-hint: #9E9E9E;
+$text-disabled: #BDBDBD;
+
+// 边框色
+$border-color: #E0E0E0;
+
+// 功能色
+$success: #4CAF50;
+$warning: #FF9800;
+$error: #F44336;
+
+// ===== 圆角系统 =====
+$radius-sm: 8rpx;
+$radius-md: 16rpx;
+$radius-lg: 24rpx;
+$radius-xl: 32rpx;
+
+// ===== 间距系统 =====
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;

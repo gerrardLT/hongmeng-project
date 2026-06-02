@@ -1,0 +1,104 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": { "navigationBarTitleText": "首页" }
+    },
+    {
+      "path": "pages/activities/index",
+      "style": { "navigationBarTitleText": "活动" }
+    },
+    {
+      "path": "pages/club/index",
+      "style": { "navigationBarTitleText": "跑团" }
+    },
+    {
+      "path": "pages/records/index",
+      "style": { "navigationBarTitleText": "记录" }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": { "navigationBarTitleText": "我的" }
+    },
+    {
+      "path": "pages/login/index",
+      "style": { "navigationBarTitleText": "登录" }
+    },
+    {
+      "path": "pages/activities/create",
+      "style": { "navigationBarTitleText": "创建活动" }
+    },
+    {
+      "path": "pages/activities/detail",
+      "style": { "navigationBarTitleText": "活动详情" }
+    },
+    {
+      "path": "pages/club/ranking",
+      "style": { "navigationBarTitleText": "排名统计" }
+    },
+    {
+      "path": "pages/records/training",
+      "style": { "navigationBarTitleText": "训练计划" }
+    },
+    {
+      "path": "pages/profile/settings",
+      "style": { "navigationBarTitleText": "设置" }
+    },
+    {
+      "path": "pages/profile/runner-card",
+      "style": { "navigationBarTitleText": "跑友名片" }
+    },
+    {
+      "path": "pages/profile/friends",
+      "style": { "navigationBarTitleText": "跑友录" }
+    },
+    {
+      "path": "pages/webview/index",
+      "style": { "navigationBarTitleText": "" }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "RunClub",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F5F5F5"
+  },
+  "tabBar": {
+    "color": "#BDBDBD",
+    "selectedColor": "#FF5722",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/images/tabbar/home.png",
+        "selectedIconPath": "static/images/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/activities/index",
+        "text": "活动",
+        "iconPath": "static/images/tabbar/activity.png",
+        "selectedIconPath": "static/images/tabbar/activity-active.png"
+      },
+      {
+        "pagePath": "pages/club/index",
+        "text": "跑团",
+        "iconPath": "static/images/tabbar/club.png",
+        "selectedIconPath": "static/images/tabbar/club-active.png"
+      },
+      {
+        "pagePath": "pages/records/index",
+        "text": "记录",
+        "iconPath": "static/images/tabbar/record.png",
+        "selectedIconPath": "static/images/tabbar/record-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "static/images/tabbar/profile.png",
+        "selectedIconPath": "static/images/tabbar/profile-active.png"
+      }
+    ]
+  }
+}

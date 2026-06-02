@@ -1,0 +1,14 @@
+{
+  "id": "mamatrack-widget",
+  "displayName": "MamaTrack服务卡片",
+  "version": "1.0.0",
+  "description": "MamaTrack孕期体重追踪服务卡片模块",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

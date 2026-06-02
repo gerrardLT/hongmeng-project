@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FFFFFF"/>
+  
+    <rect x="110" y="80" width="180" height="180" rx="8" fill="none" stroke="#DBBCBC" stroke-width="3" stroke-dasharray="8,4"/>
+    <text x="200" y="190" text-anchor="middle" font-size="56" fill="#DBBCBC" font-family="serif">印</text>
+    <text x="200" y="340" text-anchor="middle" font-size="20" fill="#BDBDBD" font-family="sans-serif">印章图片</text>
+</svg>

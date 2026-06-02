@@ -1,0 +1,14 @@
+{
+  "id": "aqualog-widget",
+  "displayName": "AquaLog服务卡片",
+  "version": "1.0.0",
+  "description": "AquaLog水族箱参数记录服务卡片模块",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

@@ -1,0 +1,281 @@
+/**
+ * MamaTrack 鸿蒙负一屏服务卡片 UTS 插件
+ *
+ * 本插件仅在鸿蒙端（APP-HARMONY）编译运行，提供服务卡片的数据获取、更新和点击跳转能力。
+ * 由于 UTS 在鸿蒙端编译为 ArkTS，可直接调用鸿蒙原生 API。
+ *
+ * 数据来源：从 App 本地存储中读取孕期档案和体重记录，
+ * 组装为 WidgetData 展示在负一屏卡片上。
+ */
+
+// ============================================
+// 类型定义
+// ============================================
+
+/**
+ * 服务卡片展示数据接口
+ */
+export interface WidgetData {
+  /** 当前孕周 */
+  currentWeek: number
+  /** 当前孕周+天数 */
+  currentWeekDay: number
+  /** 最新体重(kg) */
+  latestWeight: number
+  /** 本周增重(kg) */
+  weeklyGain: number
+  /** 增重状态 */
+  gainStatus: string  // 'low' | 'normal' | 'high'
+}
+
+// ============================================
+// 本地存储键名（与 App 端保持一致，使用 mamatrack_db_ 前缀）
+// ============================================
+
+const STORAGE_KEYS = {
+  /** 孕期档案数据 */
+  PROFILES: 'mamatrack_db_profiles',
+  /** 体重记录集合 */
+  WEIGHT_RECORDS: 'mamatrack_db_weight_records',
+  /** 孕期持久化状态 */
+  PREGNANCY_STATE: 'mamatrack_pregnancy',
+  /** 卡片缓存数据 */
+  WIDGET_DATA: 'mamatrack_widget_data'
+}
+
+// ============================================
+// 内部工具函数
+// ============================================
+
+/**
+ * 从本地存储读取对象数据
+ * @param key 存储键名
+ * @returns 解析后的对象，失败返回 null
+ */
+function getStorageObject<T>(key: string): T | null {
+  try {
+    const raw = uni.getStorageSync(key)
+    if (!raw) return null
+    if (typeof raw === 'string') return JSON.parse(raw) as T
+    return raw as T
+  } catch (e) {
+    console.error('[mamatrack-widget] getStorageObject error:', e)
+    return null
+  }
+}
+
+/**
+ * 根据预产期计算当前孕周
+ */
+function calculateCurrentWeek(dueDate: string): { week: number; day: number } {
+  try {
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    const due = new Date(dueDate)
+    due.setHours(0, 0, 0, 0)
+
+    const daysUntilDue = Math.round((due.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+    const currentDays = 280 - daysUntilDue
+
+    const week = Math.max(0, Math.floor(currentDays / 7))
+    const day = Math.max(0, currentDays % 7)
+    return { week, day }
+  } catch (e) {
+    console.error('[mamatrack-widget] calculateCurrentWeek error:', e)
+    return { week: 0, day: 0 }
+  }
+}
+
+/**
+ * 获取最新体重记录
+ */
+function getLatestWeight(): { weight: number; week: number } | null {
+  const records = getStorageObject<Record<string, any>>(STORAGE_KEYS.WEIGHT_RECORDS)
+  if (!records) return null
+
+  const all = Object.values(records)
+  if (all.length === 0) return null
+
+  // 按日期排序取最新
+  all.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  return { weight: all[0].weight, week: all[0].week }
+}
+
+/**
+ * 计算本周增重
+ */
+function calculateWeeklyGain(currentWeek: number, preWeight: number): number {
+  const records = getStorageObject<Record<string, any>>(STORAGE_KEYS.WEIGHT_RECORDS)
+  if (!records) return 0
+
+  const all = Object.values(records)
+  if (all.length === 0) return 0
+
+  const thisWeekRecords = all.filter((r: any) => r.week === currentWeek)
+    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  const lastWeekRecords = all.filter((r: any) => r.week === currentWeek - 1)
+    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  if (thisWeekRecords.length === 0) return 0
+
+  const startWeight = lastWeekRecords.length > 0
+    ? lastWeekRecords[lastWeekRecords.length - 1].weight
+    : preWeight
+
+  return Number((thisWeekRecords[thisWeekRecords.length - 1].weight - startWeight).toFixed(1))
+}
+
+/**
+ * 评估增重状态（简化版）
+ */
+function evaluateGainStatus(totalGain: number, week: number, bmiCategory: string): string {
+  // BMI 标准增重范围
+  const standards: Record<string, { min: number; max: number }> = {
+    underweight: { min: 12.5, max: 18 },
+    normal: { min: 11.5, max: 16 },
+    overweight: { min: 7, max: 11.5 },
+    obese: { min: 5, max: 9 }
+  }
+
+  const std = standards[bmiCategory] || standards.normal
+
+  // 简化：根据当前周数线性估算期望增重
+  if (week <= 0) return 'normal'
+  if (week >= 40) {
+    if (totalGain < std.min) return 'low'
+    if (totalGain > std.max) return 'high'
+    return 'normal'
+  }
+
+  const expectedMin = week <= 12
+    ? std.min * 0.10 * (week / 12)
+    : std.min * 0.10 + (std.min - std.min * 0.10) * ((week - 12) / 28)
+  const expectedMax = week <= 12
+    ? std.max * 0.15 * (week / 12)
+    : std.max * 0.15 + (std.max - std.max * 0.15) * ((week - 12) / 28)
+
+  if (totalGain < expectedMin) return 'low'
+  if (totalGain > expectedMax) return 'high'
+  return 'normal'
+}
+
+// ============================================
+// 对外导出接口
+// ============================================
+
+/**
+ * 获取卡片展示数据
+ *
+ * 从 App 本地存储中读取孕期档案和体重记录，
+ * 组装为 WidgetData 返回给服务卡片渲染使用。
+ *
+ * @returns WidgetData 卡片展示数据
+ */
+export function getWidgetData(): WidgetData {
+  // 读取孕期持久化状态获取当前档案
+  const pregnancyState = getStorageObject<{
+    currentProfile?: any
+  }>(STORAGE_KEYS.PREGNANCY_STATE)
+
+  const profile = pregnancyState?.currentProfile
+
+  if (!profile) {
+    return {
+      currentWeek: 0,
+      currentWeekDay: 0,
+      latestWeight: 0,
+      weeklyGain: 0,
+      gainStatus: 'normal'
+    }
+  }
+
+  const { week, day } = calculateCurrentWeek(profile.dueDate)
+  const latest = getLatestWeight()
+  const latestWeight = latest?.weight ?? 0
+  const weeklyGain = calculateWeeklyGain(week, profile.preWeight)
+  const totalGain = latestWeight > 0 ? Number((latestWeight - profile.preWeight).toFixed(1)) : 0
+  const gainStatus = evaluateGainStatus(totalGain, week, profile.bmiCategory || 'normal')
+
+  const data: WidgetData = {
+    currentWeek: week,
+    currentWeekDay: day,
+    latestWeight,
+    weeklyGain,
+    gainStatus
+  }
+
+  // 将当前卡片数据缓存到本地
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[mamatrack-widget] cache widget data error:', e)
+  }
+
+  console.log('[mamatrack-widget] getWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 更新服务卡片内容
+ *
+ * 将最新的 WidgetData 同步到鸿蒙服务卡片。
+ * 实际实现中需要调用鸿蒙 FormManager 的 updateForm 接口。
+ *
+ * @param data 最新的卡片展示数据
+ */
+export function updateWidget(data: WidgetData): void {
+  // 1. 先缓存到本地存储
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[mamatrack-widget] cache widget data error:', e)
+  }
+
+  // 2. 调用鸿蒙原生接口更新服务卡片（模拟实现）
+  console.log('[mamatrack-widget] updateWidget:', JSON.stringify(data))
+
+  // 触发自定义事件通知卡片刷新
+  try {
+    uni.$emit('mamatrack_widget_data_changed', data)
+  } catch (e) {
+    console.error('[mamatrack-widget] emit widget update error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理
+ *
+ * 用户点击服务卡片时，唤起 MamaTrack App 并跳转到体重录入页。
+ */
+export function onWidgetClick(): void {
+  console.log('[mamatrack-widget] widget clicked, launching app...')
+
+  try {
+    uni.setStorageSync('mamatrack_widget_click_time', Date.now())
+    uni.setStorageSync('mamatrack_widget_target_page', '/pages/weight/add')
+  } catch (e) {
+    console.error('[mamatrack-widget] record click time error:', e)
+  }
+}
+
+/**
+ * 卡片生命周期：首次创建
+ */
+export function onWidgetCreate(): void {
+  console.log('[mamatrack-widget] widget created, initializing data...')
+  getWidgetData()
+}
+
+/**
+ * 卡片生命周期：销毁
+ */
+export function onWidgetDestroy(): void {
+  console.log('[mamatrack-widget] widget destroyed, cleaning up...')
+  try {
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_DATA)
+    uni.removeStorageSync('mamatrack_widget_click_time')
+    uni.removeStorageSync('mamatrack_widget_target_page')
+  } catch (e) {
+    console.error('[mamatrack-widget] cleanup error:', e)
+  }
+}

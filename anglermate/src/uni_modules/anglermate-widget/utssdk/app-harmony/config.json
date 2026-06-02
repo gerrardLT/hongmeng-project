@@ -1,0 +1,15 @@
+{
+  "widget": {
+    "name": "AnglerMate",
+    "description": "钓鱼指数与钓点速览",
+    "size": "2x2",
+    "updateDuration": 30,
+    "defaultDimension": "2*2",
+    "supportDimensions": ["2*2"],
+    "formConfigAbility": "ability://EntryAbility",
+    "scheduledUpdateTime": "06:00",
+    "updateEnabled": true,
+    "colorMode": "auto",
+    "isDefault": true
+  }
+}

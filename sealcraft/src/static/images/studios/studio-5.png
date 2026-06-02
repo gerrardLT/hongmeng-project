@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FDF8F0"/>
+  
+    <!-- 店铺外观 -->
+    <rect x="60" y="80" width="280" height="180" rx="12" fill="#B87333" opacity="0.15"/>
+    <rect x="60" y="80" width="280" height="180" rx="12" fill="none" stroke="#B87333" stroke-width="2"/>
+    <!-- 门牌 -->
+    <rect x="130" y="100" width="140" height="50" rx="6" fill="#B87333" opacity="0.9"/>
+    <text x="200" y="133" text-anchor="middle" font-size="22" font-weight="bold" fill="#FFFFFF" font-family="sans-serif">云章阁</text>
+    <!-- 门 -->
+    <rect x="170" y="180" width="60" height="80" rx="4" fill="#B87333" opacity="0.3"/>
+    <circle cx="220" cy="220" r="4" fill="#B87333" opacity="0.7"/>
+    <!-- 底部说明 -->
+    <text x="200" y="310" text-anchor="middle" font-size="22" fill="#2C2C2C" font-family="sans-serif">云章阁</text>
+    <text x="200" y="340" text-anchor="middle" font-size="14" fill="#999" font-family="sans-serif">SealCraft · 合作工作室</text>
+</svg>

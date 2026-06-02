@@ -1,0 +1,14 @@
+{
+  "id": "plantcare-widget",
+  "displayName": "PlantCare服务卡片",
+  "version": "1.0.0",
+  "description": "PlantCare养花浇水提醒服务卡片模块",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

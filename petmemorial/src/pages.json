@@ -1,0 +1,180 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "首页"
+      }
+    },
+    {
+      "path": "pages/explore/index",
+      "style": {
+        "navigationBarTitleText": "探索"
+      }
+    },
+    {
+      "path": "pages/explore/detail",
+      "style": {
+        "navigationBarTitleText": "纪念品详情"
+      }
+    },
+    {
+      "path": "pages/explore/cases",
+      "style": {
+        "navigationBarTitleText": "案例展示"
+      }
+    },
+    {
+      "path": "pages/booking/index",
+      "style": {
+        "navigationBarTitleText": "预约"
+      }
+    },
+    {
+      "path": "pages/booking/studio-list",
+      "style": {
+        "navigationBarTitleText": "工作室列表"
+      }
+    },
+    {
+      "path": "pages/booking/studio-detail",
+      "style": {
+        "navigationBarTitleText": "工作室详情"
+      }
+    },
+    {
+      "path": "pages/booking/create",
+      "style": {
+        "navigationBarTitleText": "新建预约"
+      }
+    },
+    {
+      "path": "pages/booking/edit",
+      "style": {
+        "navigationBarTitleText": "编辑预约"
+      }
+    },
+    {
+      "path": "pages/booking/confirmation",
+      "style": {
+        "navigationBarTitleText": "预约确认"
+      }
+    },
+    {
+      "path": "pages/progress/index",
+      "style": {
+        "navigationBarTitleText": "进度"
+      }
+    },
+    {
+      "path": "pages/progress/detail",
+      "style": {
+        "navigationBarTitleText": "进度详情"
+      }
+    },
+    {
+      "path": "pages/pet/index",
+      "style": {
+        "navigationBarTitleText": "宠物档案"
+      }
+    },
+    {
+      "path": "pages/pet/create",
+      "style": {
+        "navigationBarTitleText": "创建宠物档案"
+      }
+    },
+    {
+      "path": "pages/pet/detail",
+      "style": {
+        "navigationBarTitleText": "宠物档案详情"
+      }
+    },
+    {
+      "path": "pages/pet/anniversary",
+      "style": {
+        "navigationBarTitleText": "纪念日管理"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    },
+    {
+      "path": "pages/profile/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/profile/privacy",
+      "style": {
+        "navigationBarTitleText": "隐私设置"
+      }
+    },
+    {
+      "path": "pages/profile/account",
+      "style": {
+        "navigationBarTitleText": "账户管理"
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/webview/index",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "PetMemorial",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F5F5F5"
+  },
+  "tabBar": {
+    "color": "#BDBDBD",
+    "selectedColor": "#8B5CF6",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/explore/index",
+        "text": "探索",
+        "iconPath": "static/tabbar/explore.png",
+        "selectedIconPath": "static/tabbar/explore-active.png"
+      },
+      {
+        "pagePath": "pages/booking/index",
+        "text": "预约",
+        "iconPath": "static/tabbar/booking.png",
+        "selectedIconPath": "static/tabbar/booking-active.png"
+      },
+      {
+        "pagePath": "pages/progress/index",
+        "text": "进度",
+        "iconPath": "static/tabbar/progress.png",
+        "selectedIconPath": "static/tabbar/progress-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/profile.png",
+        "selectedIconPath": "static/tabbar/profile-active.png"
+      }
+    ]
+  }
+}

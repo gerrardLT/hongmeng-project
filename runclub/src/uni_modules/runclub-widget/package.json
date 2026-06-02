@@ -1,0 +1,14 @@
+{
+  "id": "runclub-widget",
+  "displayName": "RunClub 服务卡片",
+  "version": "1.0.0",
+  "description": "RunClub 鸿蒙负一屏服务卡片，展示即将开始的活动和今日训练计划",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

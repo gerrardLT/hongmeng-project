@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>第三方SDK清单</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #333333;
+      background-color: #FFFFFF;
+      padding: 20px 16px 40px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #FF6B6B;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .update-time {
+      text-align: center;
+      font-size: 13px;
+      color: #999999;
+      margin-bottom: 24px;
+    }
+    .intro {
+      margin-bottom: 20px;
+      text-align: justify;
+      color: #666666;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    th {
+      background-color: #FF6B6B;
+      color: #FFFFFF;
+      font-weight: 600;
+      padding: 12px 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #EEEEEE;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background-color: #FFF5F5;
+    }
+    .sdk-name {
+      font-weight: 600;
+      color: #FF6B6B;
+    }
+    .company-info {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #EEEEEE;
+      font-size: 13px;
+      color: #999999;
+    }
+    .note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #999999;
+      text-align: justify;
+    }
+  </style>
+</head>
+<body>
+  <h1>第三方SDK清单</h1>
+  <p class="update-time">更新日期：2026年1月1日</p>
+
+  <p class="intro">
+    GlassCraft 应用集成了以下第三方SDK，用于提供相应的功能服务。我们已对第三方SDK进行严格的安全审查，确保其符合相关法律法规要求。以下是各SDK的详细信息：
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">SDK名称</th>
+        <th style="width: 18%;">提供方</th>
+        <th style="width: 22%;">用途</th>
+        <th style="width: 35%;">收集的个人信息</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="sdk-name">华为 Account Kit</span></td>
+        <td>华为软件技术有限公司</td>
+        <td>账号登录</td>
+        <td>华为账号标识（OpenID）、昵称、头像</td>
+      </tr>
+      <tr>
+        <td><span class="sdk-name">华为地图服务</span></td>
+        <td>华为软件技术有限公司</td>
+        <td>位置服务</td>
+        <td>位置信息（经纬度）、设备标识</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="note">
+    以上SDK均由华为软件技术有限公司提供。各SDK的个人信息收集行为受华为隐私政策约束。如您需要了解各SDK的详细隐私政策，请访问华为开发者官网查阅相关文档。<br/><br/>
+    我们会持续关注第三方SDK的变更情况，并及时更新本清单。如SDK发生重大变更，我们将在应用内通知您。
+  </p>
+
+  <div class="company-info">
+    <p>GlassCraft Team</p>
+    <p>版权所有 &copy; 2026</p>
+  </div>
+</body>
+</html>

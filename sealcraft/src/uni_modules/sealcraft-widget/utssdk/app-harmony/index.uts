@@ -1,0 +1,604 @@
+/**
+ * SealCraft 鸿蒙负一屏服务卡片 UTS 插件
+ *
+ * 本插件仅在鸿蒙端（APP-HARMONY）编译运行，提供服务卡片的数据获取、更新和点击跳转能力。
+ * 由于 UTS 在鸿蒙端编译为 ArkTS，可直接调用鸿蒙原生 API。
+ *
+ * 支持三种服务卡片：
+ * 1. 取件提醒卡片 — 显示印章取件预约状态和预计取件时间
+ * 2. 制作进度卡片 — 显示当前制作阶段和完成百分比
+ * 3. 每日印章知识推荐卡片 — 随机推荐印章/材质/字体知识
+ *
+ * 注意：服务卡片实际运行需要在鸿蒙真机或模拟器环境中测试，
+ * 此处为完整的接口结构和模拟实现。
+ */
+
+// ============================================
+// 类型定义
+// ============================================
+
+/**
+ * 取件提醒卡片展示数据
+ */
+export interface PickupReminderData {
+  /** 刻字内容 */
+  sealContent: string
+  /** 工作室名称 */
+  studioName: string
+  /** 预计取件时间（格式：MM-DD HH:mm） */
+  pickupDate: string
+  /** 预约状态（如：待取件、已发货等） */
+  status: string
+}
+
+/**
+ * 制作进度卡片展示数据
+ */
+export interface ProgressCardData {
+  /** 刻字内容 */
+  sealContent: string
+  /** 当前制作阶段（如：设计确认、备料中、刻制中等） */
+  currentStage: string
+  /** 进度百分比（0-100） */
+  progressPercent: number
+  /** 预计完成时间（格式：MM-DD） */
+  estimatedTime: string
+}
+
+/**
+ * 每日印章知识推荐卡片展示数据
+ */
+export interface KnowledgeCardData {
+  /** 知识标题 */
+  title: string
+  /** 知识内容摘要 */
+  content: string
+  /** 知识分类（如：字体知识、材质知识、印章类型、使用知识） */
+  category: string
+}
+
+// ============================================
+// 本地存储键名（与 App 端保持一致）
+// ============================================
+
+const STORAGE_KEYS = {
+  AUTH: 'sealcraft_auth',
+  BOOKINGS: 'sealcraft_bookings',
+  PROGRESSES: 'sealcraft_progresses',
+  STUDIOS: 'sealcraft_studios',
+  SEAL_TYPES: 'sealcraft_seal_types',
+  MATERIALS: 'sealcraft_materials',
+  FONTS: 'sealcraft_fonts',
+  USER_INFO: 'sealcraft_user_info',
+  WIDGET_PICKUP_DATA: 'sealcraft_widget_pickup_data',
+  WIDGET_PROGRESS_DATA: 'sealcraft_widget_progress_data',
+  WIDGET_KNOWLEDGE_DATA: 'sealcraft_widget_knowledge_data'
+}
+
+// ============================================
+// 内部工具函数
+// ============================================
+
+/**
+ * 从本地存储读取对象数据
+ * @param key 存储键名
+ * @returns 解析后的对象，失败返回 null
+ */
+function getStorageObject<T>(key: string): T | null {
+  try {
+    const raw = uni.getStorageSync(key)
+    if (!raw) return null
+    if (typeof raw === 'string') return JSON.parse(raw) as T
+    return raw as T
+  } catch (e) {
+    console.error('[sealcraft-widget] getStorageObject error:', e)
+    return null
+  }
+}
+
+/**
+ * 获取当前登录用户 ID
+ */
+function getCurrentUserId(): string {
+  try {
+    const auth = uni.getStorageSync(STORAGE_KEYS.AUTH) as { userId?: string } | null
+    if (auth && typeof auth === 'object' && auth.userId) {
+      return auth.userId
+    }
+    const userInfo = uni.getStorageSync(STORAGE_KEYS.USER_INFO) as { userId?: string } | null
+    return userInfo?.userId || ''
+  } catch (e) {
+    console.error('[sealcraft-widget] getCurrentUserId error:', e)
+    return ''
+  }
+}
+
+/**
+ * 格式化日期为 MM-DD HH:mm 格式
+ */
+function formatDateTime(dateStr: string, timeSlot: string): string {
+  try {
+    const date = new Date(dateStr)
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${month}-${day} ${timeSlot}`
+  } catch (e) {
+    return '--'
+  }
+}
+
+/**
+ * 格式化日期为 MM-DD 格式
+ */
+function formatDate(timestamp: number): string {
+  try {
+    const date = new Date(timestamp)
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${month}-${day}`
+  } catch (e) {
+    return '--'
+  }
+}
+
+// ============================================
+// 取件提醒卡片数据
+// ============================================
+
+/**
+ * 获取取件提醒信息
+ */
+function getPickupReminder(): PickupReminderData {
+  const bookings = getStorageObject<Record<string, any>>(STORAGE_KEYS.BOOKINGS)
+  const progresses = getStorageObject<Record<string, any>>(STORAGE_KEYS.PROGRESSES)
+
+  if (!bookings) {
+    return {
+      sealContent: '--',
+      studioName: '暂无预约',
+      pickupDate: '--',
+      status: '--'
+    }
+  }
+
+  const userId = getCurrentUserId()
+  if (!userId) {
+    return {
+      sealContent: '--',
+      studioName: '暂无预约',
+      pickupDate: '--',
+      status: '--'
+    }
+  }
+
+  // 筛选当前用户未取消的预约，按创建时间排序
+  const userBookings = Object.values(bookings)
+    .filter((b: any) => b.userId === userId && b.status !== 'cancelled')
+    .sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0))
+
+  if (userBookings.length === 0) {
+    return {
+      sealContent: '--',
+      studioName: '暂无预约',
+      pickupDate: '--',
+      status: '--'
+    }
+  }
+
+  // 查找待取件或已发货的订单
+  const statusLabels: Record<string, string> = {
+    'pending': '待确认',
+    'confirmed': '已确认',
+    'in-progress': '制作中',
+    'completed': '已完成',
+    'cancelled': '已取消'
+  }
+
+  const stageStatusLabels: Record<string, string> = {
+    'ready-pickup': '待取件',
+    'shipped': '已发货'
+  }
+
+  for (const booking of userBookings) {
+    // 查找该预约的进度记录
+    if (!progresses) continue
+
+    const bookingProgresses = Object.values(progresses)
+      .filter((p: any) => p.bookingId === (booking as any).bookingId)
+      .sort((a: any, b: any) => (a.updateTime || 0) - (b.updateTime || 0))
+
+    if (bookingProgresses.length === 0) continue
+
+    const latest = bookingProgresses[bookingProgresses.length - 1] as any
+    const stage = latest.stage || ''
+
+    // 优先显示待取件和已发货状态
+    if (stage === 'ready-pickup' || stage === 'shipped') {
+      // 查找工作室名称
+      let studioName = '未知工作室'
+      const studios = getStorageObject<Record<string, any>>(STORAGE_KEYS.STUDIOS)
+      if (studios && (booking as any).studioId) {
+        const studio = studios[(booking as any).studioId]
+        if (studio && studio.name) {
+          studioName = studio.name
+        }
+      }
+
+      return {
+        sealContent: (booking as any).content || '--',
+        studioName,
+        pickupDate: formatDateTime((booking as any).date, (booking as any).timeSlot || '--'),
+        status: stageStatusLabels[stage] || '待取件'
+      }
+    }
+  }
+
+  // 没有待取件订单，显示最近的预约状态
+  const next = userBookings[0] as any
+
+  let studioName = '未知工作室'
+  const studios = getStorageObject<Record<string, any>>(STORAGE_KEYS.STUDIOS)
+  if (studios && next.studioId) {
+    const studio = studios[next.studioId]
+    if (studio && studio.name) {
+      studioName = studio.name
+    }
+  }
+
+  return {
+    sealContent: next.content || '--',
+    studioName,
+    pickupDate: formatDateTime(next.date, next.timeSlot || '--'),
+    status: statusLabels[next.status] || '进行中'
+  }
+}
+
+// ============================================
+// 制作进度卡片数据
+// ============================================
+
+/**
+ * 获取当前制作进度
+ */
+function getCurrentProgress(): ProgressCardData {
+  const bookings = getStorageObject<Record<string, any>>(STORAGE_KEYS.BOOKINGS)
+  const progresses = getStorageObject<Record<string, any>>(STORAGE_KEYS.PROGRESSES)
+
+  if (!bookings || !progresses) {
+    return {
+      sealContent: '--',
+      currentStage: '暂无订单',
+      progressPercent: 0,
+      estimatedTime: '--'
+    }
+  }
+
+  const userId = getCurrentUserId()
+  if (!userId) {
+    return {
+      sealContent: '--',
+      currentStage: '暂无订单',
+      progressPercent: 0,
+      estimatedTime: '--'
+    }
+  }
+
+  // 找到当前用户最近的非取消预约
+  const userBookings = Object.values(bookings)
+    .filter((b: any) => b.userId === userId && b.status !== 'cancelled')
+    .sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0))
+
+  if (userBookings.length === 0) {
+    return {
+      sealContent: '--',
+      currentStage: '暂无订单',
+      progressPercent: 0,
+      estimatedTime: '--'
+    }
+  }
+
+  // 阶段标签映射
+  const stageLabels: Record<string, string> = {
+    'design-confirmed': '设计确认',
+    'material-prepared': '备料中',
+    'carving': '刻制中',
+    'polishing': '打磨中',
+    'quality-check': '质检中',
+    'ready-pickup': '待取件',
+    'shipped': '已发货'
+  }
+
+  // 阶段百分比映射（7 个阶段，均分）
+  const progressMap: Record<string, number> = {
+    'design-confirmed': 14,
+    'material-prepared': 28,
+    'carving': 43,
+    'polishing': 57,
+    'quality-check': 71,
+    'ready-pickup': 85,
+    'shipped': 100
+  }
+
+  for (const booking of userBookings) {
+    const bookingProgresses = Object.values(progresses)
+      .filter((p: any) => p.bookingId === (booking as any).bookingId)
+      .sort((a: any, b: any) => (a.updateTime || 0) - (b.updateTime || 0))
+
+    if (bookingProgresses.length === 0) continue
+
+    const latest = bookingProgresses[bookingProgresses.length - 1] as any
+    const stage = latest.stage || 'carving'
+
+    return {
+      sealContent: (booking as any).content || '--',
+      currentStage: stageLabels[stage] || '制作中',
+      progressPercent: progressMap[stage] || 30,
+      estimatedTime: latest.estimatedCompletionTime
+        ? formatDate(latest.estimatedCompletionTime)
+        : '--'
+    }
+  }
+
+  return {
+    sealContent: '--',
+    currentStage: '暂无进度',
+    progressPercent: 0,
+    estimatedTime: '--'
+  }
+}
+
+// ============================================
+// 每日印章知识推荐卡片数据
+// ============================================
+
+/** 知识条目内部结构 */
+interface KnowledgeItem {
+  title: string
+  content: string
+  category: string
+}
+
+/** 内置知识库（按星期轮换） */
+const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
+  {
+    title: '篆书入印',
+    content: '篆书是篆刻最正统的字体，"以篆入印"传统延续两千余年。秦小篆笔画匀称，结体修长，最适合姓名章和收藏章。',
+    category: '字体知识'
+  },
+  {
+    title: '寿山石鉴赏',
+    content: '寿山石产自福建福州，以田黄为最贵。石质温润细腻，受刀爽利，是篆刻首选石料，位列四大名石之首。',
+    category: '材质知识'
+  },
+  {
+    title: '闲章之美',
+    content: '闲章不拘于姓名，而以表达志趣为旨。"淡泊明志""厚德载物"等常用内容，方寸之间尽显主人情怀。',
+    category: '印章类型'
+  },
+  {
+    title: '印泥讲究',
+    content: '朱砂印泥以艾绒、朱砂、蓖麻油调制，色泽沉稳浓郁。好的印泥"冬不凝固，夏不渗油"，盖印效果清晰饱满。',
+    category: '使用知识'
+  },
+  {
+    title: '藏书章溯源',
+    content: '藏书章始于宋代，盛于明清。"某某藏书""某某珍藏"钤于扉页，既是归属标识，也是文化传承的见证。',
+    category: '印章类型'
+  },
+  {
+    title: '青田石特色',
+    content: '青田石产自浙江青田，刀感脆爽利落。封门青色淡雅如玉，灯光冻晶莹透亮，为篆刻界四大名石之一。',
+    category: '材质知识'
+  },
+  {
+    title: '姓名章礼仪',
+    content: '姓名章自古为身份标识，书画落款、信函签署不可或缺。刻制时讲究"白文朱文"之分，白文端庄，朱文秀丽。',
+    category: '使用知识'
+  }
+]
+
+/**
+ * 获取每日印章知识推荐
+ */
+function getDailyKnowledge(): KnowledgeCardData {
+  // 按星期几轮换内容
+  const dayIndex = new Date().getDay() % KNOWLEDGE_ITEMS.length
+  const item = KNOWLEDGE_ITEMS[dayIndex]
+
+  return {
+    title: item.title,
+    content: item.content,
+    category: item.category
+  }
+}
+
+// ============================================
+// 对外接口
+// ============================================
+
+/**
+ * 获取取件提醒卡片展示数据
+ */
+export function getPickupReminderWidgetData(): PickupReminderData {
+  const data = getPickupReminder()
+
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_PICKUP_DATA, data)
+  } catch (e) {
+    console.error('[sealcraft-widget] cache pickup data error:', e)
+  }
+
+  console.log('[sealcraft-widget] getPickupReminderWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 获取制作进度卡片展示数据
+ */
+export function getProgressWidgetData(): ProgressCardData {
+  const data = getCurrentProgress()
+
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_PROGRESS_DATA, data)
+  } catch (e) {
+    console.error('[sealcraft-widget] cache progress data error:', e)
+  }
+
+  console.log('[sealcraft-widget] getProgressWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 获取每日印章知识推荐卡片展示数据
+ */
+export function getKnowledgeWidgetData(): KnowledgeCardData {
+  const data = getDailyKnowledge()
+
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_KNOWLEDGE_DATA, data)
+  } catch (e) {
+    console.error('[sealcraft-widget] cache knowledge data error:', e)
+  }
+
+  console.log('[sealcraft-widget] getKnowledgeWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 更新取件提醒服务卡片
+ */
+export function updatePickupWidget(data: PickupReminderData): void {
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_PICKUP_DATA, data)
+  } catch (e) {
+    console.error('[sealcraft-widget] cache pickup data error:', e)
+  }
+
+  console.log('[sealcraft-widget] updatePickupWidget:', JSON.stringify(data))
+
+  try {
+    uni.$emit('sealcraft_pickup_widget_data_changed', data)
+  } catch (e) {
+    console.error('[sealcraft-widget] emit pickup widget update error:', e)
+  }
+}
+
+/**
+ * 更新制作进度服务卡片
+ */
+export function updateProgressWidget(data: ProgressCardData): void {
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_PROGRESS_DATA, data)
+  } catch (e) {
+    console.error('[sealcraft-widget] cache progress data error:', e)
+  }
+
+  console.log('[sealcraft-widget] updateProgressWidget:', JSON.stringify(data))
+
+  try {
+    uni.$emit('sealcraft_progress_widget_data_changed', data)
+  } catch (e) {
+    console.error('[sealcraft-widget] emit progress widget update error:', e)
+  }
+}
+
+/**
+ * 更新每日印章知识推荐服务卡片
+ */
+export function updateKnowledgeWidget(data: KnowledgeCardData): void {
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_KNOWLEDGE_DATA, data)
+  } catch (e) {
+    console.error('[sealcraft-widget] cache knowledge data error:', e)
+  }
+
+  console.log('[sealcraft-widget] updateKnowledgeWidget:', JSON.stringify(data))
+
+  try {
+    uni.$emit('sealcraft_knowledge_widget_data_changed', data)
+  } catch (e) {
+    console.error('[sealcraft-widget] emit knowledge widget update error:', e)
+  }
+}
+
+/**
+ * 统一更新所有服务卡片数据
+ */
+export function updateWidget(data: {
+  pickup?: PickupReminderData | null
+  progress?: ProgressCardData | null
+  knowledge?: KnowledgeCardData | null
+}): void {
+  if (data.pickup) {
+    updatePickupWidget(data.pickup)
+  }
+  if (data.progress) {
+    updateProgressWidget(data.progress)
+  }
+  if (data.knowledge) {
+    updateKnowledgeWidget(data.knowledge)
+  }
+}
+
+/**
+ * 卡片点击处理 — 跳转到取件提醒页面
+ */
+export function onPickupWidgetClick(): void {
+  console.log('[sealcraft-widget] pickup widget clicked')
+  try {
+    uni.setStorageSync('sealcraft_widget_click_time', Date.now())
+    uni.setStorageSync('sealcraft_widget_click_target', 'pickup')
+  } catch (e) {
+    console.error('[sealcraft-widget] record click error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理 — 跳转到制作进度页面
+ */
+export function onProgressWidgetClick(): void {
+  console.log('[sealcraft-widget] progress widget clicked')
+  try {
+    uni.setStorageSync('sealcraft_widget_click_time', Date.now())
+    uni.setStorageSync('sealcraft_widget_click_target', 'progress')
+  } catch (e) {
+    console.error('[sealcraft-widget] record click error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理 — 跳转到印章知识页面
+ */
+export function onKnowledgeWidgetClick(): void {
+  console.log('[sealcraft-widget] knowledge widget clicked')
+  try {
+    uni.setStorageSync('sealcraft_widget_click_time', Date.now())
+    uni.setStorageSync('sealcraft_widget_click_target', 'knowledge')
+  } catch (e) {
+    console.error('[sealcraft-widget] record click error:', e)
+  }
+}
+
+/**
+ * 卡片生命周期：首次创建
+ */
+export function onWidgetCreate(): void {
+  console.log('[sealcraft-widget] widget created')
+  getPickupReminderWidgetData()
+  getProgressWidgetData()
+  getKnowledgeWidgetData()
+}
+
+/**
+ * 卡片生命周期：销毁
+ */
+export function onWidgetDestroy(): void {
+  console.log('[sealcraft-widget] widget destroyed')
+  try {
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_PICKUP_DATA)
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_PROGRESS_DATA)
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_KNOWLEDGE_DATA)
+  } catch (e) {
+    console.error('[sealcraft-widget] cleanup error:', e)
+  }
+}

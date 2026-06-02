@@ -1,0 +1,32 @@
+// SealCraft 全局设计变量
+
+// ===== 色彩系统 - 印章主题 =====
+$primary: #C41A1A;        // 朱砂红
+$primary-light: #E85454;  // 浅朱砂
+$primary-dark: #9E1515;   // 深朱砂
+$secondary: #2C2C2C;      // 墨色
+$accent: #548B54;         // 石青
+
+// 页面与卡片背景
+$bg-page: #FBF8F5;        // 宣纸色背景
+$bg-card: #FFFFFF;
+
+// 文字色
+$text-primary: #2C2C2C;   // 墨色文字
+$text-secondary: #757575;
+$text-hint: #9E9E9E;
+
+// ===== 圆角系统 =====
+$radius-sm: 8rpx;
+$radius-md: 16rpx;
+$radius-lg: 24rpx;
+
+// ===== 间距系统 =====
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+
+// ===== 其他 =====
+$border-color: #E8E0D8;   // 宣纸灰边框
+$success: #548B54;        // 石青-成功色

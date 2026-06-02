@@ -1,0 +1,62 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "首页" } },
+    { "path": "pages/curve/index", "style": { "navigationBarTitleText": "体重曲线" } },
+    { "path": "pages/record/index", "style": { "navigationBarTitleText": "孕期记录" } },
+    { "path": "pages/knowledge/index", "style": { "navigationBarTitleText": "孕期知识" } },
+    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "我的" } },
+    { "path": "pages/setup/index", "style": { "navigationBarTitleText": "初始化设置" } },
+    { "path": "pages/login/index", "style": { "navigationBarTitleText": "登录" } },
+    { "path": "pages/webview/index", "style": { "navigationBarTitleText": "" } },
+    { "path": "pages/weight/add", "style": { "navigationBarTitleText": "记录体重" } },
+    { "path": "pages/record/add", "style": { "navigationBarTitleText": "孕期拍照" } },
+    { "path": "pages/record/compare", "style": { "navigationBarTitleText": "照片对比" } },
+    { "path": "pages/profile/settings", "style": { "navigationBarTitleText": "设置" } },
+    { "path": "pages/profile/family", "style": { "navigationBarTitleText": "家人共享" } },
+    { "path": "pages/checkup/add", "style": { "navigationBarTitleText": "产检记录" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "MamaTrack",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#FFF5F8"
+  },
+  "tabBar": {
+    "color": "#BDBDBD",
+    "selectedColor": "#E91E8C",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/images/tabbar/home.png",
+        "selectedIconPath": "static/images/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/curve/index",
+        "text": "曲线",
+        "iconPath": "static/images/tabbar/curve.png",
+        "selectedIconPath": "static/images/tabbar/curve-active.png"
+      },
+      {
+        "pagePath": "pages/record/index",
+        "text": "记录",
+        "iconPath": "static/images/tabbar/record.png",
+        "selectedIconPath": "static/images/tabbar/record-active.png"
+      },
+      {
+        "pagePath": "pages/knowledge/index",
+        "text": "知识",
+        "iconPath": "static/images/tabbar/knowledge.png",
+        "selectedIconPath": "static/images/tabbar/knowledge-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "static/images/tabbar/profile.png",
+        "selectedIconPath": "static/images/tabbar/profile-active.png"
+      }
+    ]
+  }
+}

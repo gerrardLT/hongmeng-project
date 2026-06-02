@@ -1,0 +1,224 @@
+/**
+ * PlantCare 鸿蒙负一屏服务卡片 UTS 插件
+ *
+ * 本插件仅在鸿蒙端（APP-HARMONY）编译运行，提供服务卡片的数据获取、更新和点击跳转能力。
+ * 由于 UTS 在鸿蒙端编译为 ArkTS，可直接调用鸿蒙原生 API。
+ *
+ * 数据来源：从 App 本地存储中读取植物信息和浇水提醒，
+ * 组装为 WidgetData 展示在负一屏卡片上。
+ */
+
+// ============================================
+// 类型定义
+// ============================================
+
+/**
+ * 服务卡片展示数据接口
+ */
+export interface WidgetData {
+  /** 今日需浇水植物数 */
+  todayNeedWater: number
+  /** 植物名称列表（最多3个） */
+  plantNames: string[]
+  /** 下次提醒时间 */
+  nextReminderTime: string
+}
+
+// ============================================
+// 本地存储键名（与 App 端保持一致，使用 plantcare_db_ 前缀）
+// ============================================
+
+const STORAGE_KEYS = {
+  /** 植物数据集合 */
+  PLANTS: 'plantcare_db_plants',
+  /** 养护记录集合 */
+  CARE_RECORDS: 'plantcare_db_care_records',
+  /** 提醒设置集合 */
+  REMINDERS: 'plantcare_db_reminders',
+  /** 卡片缓存数据 */
+  WIDGET_DATA: 'plantcare_widget_data'
+}
+
+// ============================================
+// 内部工具函数
+// ============================================
+
+/**
+ * 从本地存储读取对象数据
+ * @param key 存储键名
+ * @returns 解析后的对象，失败返回 null
+ */
+function getStorageObject<T>(key: string): T | null {
+  try {
+    const raw = uni.getStorageSync(key)
+    if (!raw) return null
+    // uni.getStorageSync 在不同平台可能返回字符串或已解析对象
+    if (typeof raw === 'string') return JSON.parse(raw) as T
+    return raw as T
+  } catch (e) {
+    console.error('[plantcare-widget] getStorageObject error:', e)
+    return null
+  }
+}
+
+/**
+ * 判断植物今日是否需要浇水
+ * 根据上次浇水日期和浇水周期，计算今日是否为浇水日
+ */
+function isWaterDueToday(plant: any): boolean {
+  if (!plant.nextWaterDate) return false
+  const today = new Date()
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  return plant.nextWaterDate <= todayStr
+}
+
+/**
+ * 获取今日需浇水的植物列表
+ * 从植物集合中筛选出今日需要浇水的植物
+ */
+function getTodayWaterPlants(): any[] {
+  const plants = getStorageObject<Record<string, any>>(STORAGE_KEYS.PLANTS)
+  if (!plants) return []
+
+  return Object.values(plants).filter((p: any) => isWaterDueToday(p))
+}
+
+/**
+ * 计算最近的下次提醒时间
+ * 从所有植物的下次浇水日期中取最近的一个
+ */
+function getNextReminderTime(): string {
+  const plants = getStorageObject<Record<string, any>>(STORAGE_KEYS.PLANTS)
+  if (!plants) return ''
+
+  const nextDates = Object.values(plants)
+    .map((p: any) => p.nextWaterDate)
+    .filter(Boolean)
+    .sort()
+
+  return nextDates.length > 0 ? nextDates[0] : ''
+}
+
+// ============================================
+// 对外导出接口
+// ============================================
+
+/**
+ * 获取卡片展示数据
+ *
+ * 从 App 本地存储中读取植物信息和浇水提醒状态，
+ * 组装为 WidgetData 返回给服务卡片渲染使用。
+ *
+ * @returns WidgetData 卡片展示数据
+ */
+export function getWidgetData(): WidgetData {
+  const needWater = getTodayWaterPlants()
+  const data: WidgetData = {
+    todayNeedWater: needWater.length,
+    plantNames: needWater.slice(0, 3).map((p: any) => p.nickname || p.name || '未命名植物'),
+    nextReminderTime: getNextReminderTime()
+  }
+
+  // 将当前卡片数据缓存到本地，供卡片定时刷新时使用
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[plantcare-widget] cache widget data error:', e)
+  }
+
+  console.log('[plantcare-widget] getWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 更新服务卡片内容
+ *
+ * 将最新的 WidgetData 同步到鸿蒙服务卡片。
+ * 实际实现中需要调用鸿蒙 FormManager 的 updateForm 接口。
+ *
+ * @param data 最新的卡片展示数据
+ */
+export function updateWidget(data: WidgetData): void {
+  // 1. 先缓存到本地存储
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[plantcare-widget] cache widget data error:', e)
+  }
+
+  // 2. 调用鸿蒙原生接口更新服务卡片（模拟实现）
+  // 实际真机环境中，需要通过 FormManager 获取当前 formId 并触发更新
+  // 示例：
+  // import formManager from '@ohos.app.form.formManager';
+  // import formBindingData from '@ohos.app.form.formBindingData';
+  // formManager.updateForm(formId, formBindingData.createFormBindingData(data));
+
+  console.log('[plantcare-widget] updateWidget:', JSON.stringify(data))
+
+  // 触发自定义事件通知卡片刷新（UTS 层向 ArkUI 卡片通信）
+  try {
+    uni.$emit('plantcare_widget_data_changed', data)
+  } catch (e) {
+    console.error('[plantcare-widget] emit widget update error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理
+ *
+ * 用户点击服务卡片时，唤起 PlantCare App 并跳转到首页。
+ * 实际实现中需要调用鸿蒙 Want 机制进行应用跳转。
+ */
+export function onWidgetClick(): void {
+  console.log('[plantcare-widget] widget clicked, launching app...')
+
+  // 鸿蒙端通过 Want 机制启动应用
+  // 记录点击时间和目标页面，App 启动时读取并跳转
+  try {
+    uni.setStorageSync('plantcare_widget_click_time', Date.now())
+    uni.setStorageSync('plantcare_widget_target_page', '/pages/index/index')
+  } catch (e) {
+    console.error('[plantcare-widget] record click time error:', e)
+  }
+
+  // 实际真机环境中，应使用如下方式启动应用：
+  // import Want from '@ohos.app.ability.Want';
+  // const want: Want = {
+  //   bundleName: 'com.plantcare.app',
+  //   abilityName: 'EntryAbility',
+  //   parameters: {
+  //     fromWidget: true,
+  //     targetPage: '/pages/index/index'
+  //   }
+  // };
+  // context.startAbility(want);
+}
+
+/**
+ * 卡片生命周期：首次创建
+ *
+ * 服务卡片被添加到桌面/负一屏时调用，初始化卡片数据。
+ * 此时应从本地存储加载最新数据并渲染到卡片上。
+ */
+export function onWidgetCreate(): void {
+  console.log('[plantcare-widget] widget created, initializing data...')
+  // 首次创建时获取并缓存最新数据
+  getWidgetData()
+}
+
+/**
+ * 卡片生命周期：销毁
+ *
+ * 服务卡片被移除时调用，执行清理操作。
+ * 清除卡片相关的缓存数据，释放存储空间。
+ */
+export function onWidgetDestroy(): void {
+  console.log('[plantcare-widget] widget destroyed, cleaning up...')
+  try {
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_DATA)
+    uni.removeStorageSync('plantcare_widget_click_time')
+    uni.removeStorageSync('plantcare_widget_target_page')
+  } catch (e) {
+    console.error('[plantcare-widget] cleanup error:', e)
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "sealcraft-widget",
+  "displayName": "SealCraft 服务卡片",
+  "version": "1.0.0",
+  "description": "SealCraft 鸿蒙负一屏服务卡片，展示取件提醒、制作进度和印章知识推荐信息",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

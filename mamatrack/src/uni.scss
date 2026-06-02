@@ -1,0 +1,53 @@
+/* MamaTrack 全局SCSS变量 */
+
+/* 主色调 - 粉紫色系 */
+$primary-color: #E91E8C;
+$primary-light: #FF6EB4;
+$primary-dark: #C2185B;
+
+/* 辅助色 */
+$success-color: #4CAF50;
+$warning-color: #FF9800;
+$danger-color: #F44336;
+$info-color: #2196F3;
+
+/* 中性色 */
+$text-primary: #333333;
+$text-secondary: #666666;
+$text-hint: #999999;
+$text-disabled: #CCCCCC;
+
+/* 背景色 */
+$bg-page: #FFF5F8;
+$bg-card: #FFFFFF;
+$bg-secondary: #FFF0F5;
+
+/* 边框 */
+$border-color: #F0F0F0;
+$border-radius: 16rpx;
+$border-radius-sm: 8rpx;
+$border-radius-lg: 24rpx;
+$border-radius-round: 44rpx;
+
+/* 字体大小 */
+$font-xs: 22rpx;
+$font-sm: 24rpx;
+$font-base: 28rpx;
+$font-md: 30rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-xxl: 40rpx;
+$font-title: 44rpx;
+
+/* 间距 */
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-base: 24rpx;
+$spacing-md: 32rpx;
+$spacing-lg: 40rpx;
+$spacing-xl: 48rpx;
+
+/* 阴影 */
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);

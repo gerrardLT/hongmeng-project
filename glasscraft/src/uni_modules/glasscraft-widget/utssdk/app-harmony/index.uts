@@ -1,0 +1,314 @@
+/**
+ * GlassCraft 鸿蒙负一屏服务卡片 UTS 插件
+ *
+ * 本插件仅在鸿蒙端（APP-HARMONY）编译运行，提供服务卡片的数据获取、更新和点击跳转能力。
+ * 由于 UTS 在鸿蒙端编译为 ArkTS，可直接调用鸿蒙原生 API。
+ *
+ * 支持两种服务卡片：
+ * 1. 预约提醒卡片 — 显示即将到来的预约信息（工作室名称、预约时间、项目名称）
+ * 2. 作品展示卡片 — 显示最近的作品（作品照片、工作室名称、创建日期）
+ *
+ * 注意：服务卡片实际运行需要在鸿蒙真机或模拟器环境中测试，
+ * 此处为完整的接口结构和模拟实现。
+ */
+
+// ============================================
+// 类型定义
+// ============================================
+
+/**
+ * 预约提醒卡片展示数据
+ */
+export interface BookingWidgetData {
+  /** 工作室名称 */
+  studioName: string
+  /** 预约时间（格式：MM-DD HH:mm） */
+  bookingTime: string
+  /** 项目名称（如：琉璃戒指、水晶吊坠等） */
+  projectName: string
+}
+
+/**
+ * 作品展示卡片展示数据
+ */
+export interface ArtworkWidgetData {
+  /** 作品照片路径 */
+  artworkPhoto: string
+  /** 工作室名称 */
+  studioName: string
+  /** 创建日期（格式：YYYY-MM-DD） */
+  createdDate: string
+}
+
+// ============================================
+// 本地存储键名（与 App 端保持一致）
+// ============================================
+
+const STORAGE_KEYS = {
+  BOOKINGS: 'glasscraft_db_bookings',
+  ARTWORKS: 'glasscraft_db_artworks',
+  USER_INFO: 'userInfo',
+  WIDGET_BOOKING_DATA: 'glasscraft_widget_booking_data',
+  WIDGET_ARTWORK_DATA: 'glasscraft_widget_artwork_data'
+}
+
+// ============================================
+// 内部工具函数
+// ============================================
+
+/**
+ * 从本地存储读取对象数据
+ * @param key 存储键名
+ * @returns 解析后的对象，失败返回 null
+ */
+function getStorageObject<T>(key: string): T | null {
+  try {
+    const raw = uni.getStorageSync(key)
+    if (!raw) return null
+    // uni.getStorageSync 在不同平台可能返回字符串或已解析对象
+    if (typeof raw === 'string') return JSON.parse(raw) as T
+    return raw as T
+  } catch (e) {
+    console.error('[glasscraft-widget] getStorageObject error:', e)
+    return null
+  }
+}
+
+/**
+ * 获取当前登录用户 ID
+ */
+function getCurrentUserId(): string {
+  try {
+    const userInfo = uni.getStorageSync(STORAGE_KEYS.USER_INFO) as { userId?: string } | null
+    return userInfo?.userId || 'default_user'
+  } catch (e) {
+    console.error('[glasscraft-widget] getCurrentUserId error:', e)
+    return 'default_user'
+  }
+}
+
+/**
+ * 格式化日期为 MM-DD HH:mm 格式
+ */
+function formatDateTime(timestamp: number): string {
+  const date = new Date(timestamp)
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hour = String(date.getHours()).padStart(2, '0')
+  const minute = String(date.getMinutes()).padStart(2, '0')
+  return `${month}-${day} ${hour}:${minute}`
+}
+
+/**
+ * 格式化日期为 YYYY-MM-DD 格式
+ */
+function formatDateFull(timestamp: number): string {
+  const date = new Date(timestamp)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+// ============================================
+// 预约提醒卡片数据
+// ============================================
+
+/**
+ * 获取即将到来的预约信息
+ */
+function getUpcomingBooking(): BookingWidgetData {
+  const bookings = getStorageObject<Record<string, any>>(STORAGE_KEYS.BOOKINGS)
+  if (!bookings) {
+    return {
+      studioName: '暂无预约',
+      bookingTime: '--',
+      projectName: '--'
+    }
+  }
+
+  const userId = getCurrentUserId()
+  const now = Date.now()
+
+  // 筛选当前用户未来的预约，按时间排序
+  const upcomingBookings = Object.values(bookings)
+    .filter((b: any) => b.userId === userId && b.status === 'confirmed' && b.bookingTime > now)
+    .sort((a: any, b: any) => a.bookingTime - b.bookingTime)
+
+  if (upcomingBookings.length === 0) {
+    return {
+      studioName: '暂无预约',
+      bookingTime: '--',
+      projectName: '--'
+    }
+  }
+
+  const next = upcomingBookings[0] as any
+  return {
+    studioName: next.studioName || '未命名工作室',
+    bookingTime: formatDateTime(next.bookingTime),
+    projectName: next.projectName || '未选择项目'
+  }
+}
+
+// ============================================
+// 作品展示卡片数据
+// ============================================
+
+/**
+ * 获取最近的作品信息
+ */
+function getLatestArtwork(): ArtworkWidgetData {
+  const artworks = getStorageObject<Record<string, any>>(STORAGE_KEYS.ARTWORKS)
+  if (!artworks) {
+    return {
+      artworkPhoto: '',
+      studioName: '暂无作品',
+      createdDate: '--'
+    }
+  }
+
+  const userId = getCurrentUserId()
+
+  // 筛选当前用户的作品，按创建时间倒序
+  const userArtworks = Object.values(artworks)
+    .filter((a: any) => a.userId === userId && a.photos && a.photos.length > 0)
+    .sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0))
+
+  if (userArtworks.length === 0) {
+    return {
+      artworkPhoto: '',
+      studioName: '暂无作品',
+      createdDate: '--'
+    }
+  }
+
+  const latest = userArtworks[0] as any
+  return {
+    artworkPhoto: latest.photos[0] || '',
+    studioName: latest.studioName || '未关联工作室',
+    createdDate: latest.createdAt ? formatDateFull(latest.createdAt) : '--'
+  }
+}
+
+// ============================================
+// 对外接口
+// ============================================
+
+/**
+ * 获取预约提醒卡片展示数据
+ */
+export function getBookingWidgetData(): BookingWidgetData {
+  const data = getUpcomingBooking()
+
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_BOOKING_DATA, data)
+  } catch (e) {
+    console.error('[glasscraft-widget] cache booking data error:', e)
+  }
+
+  console.log('[glasscraft-widget] getBookingWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 获取作品展示卡片展示数据
+ */
+export function getArtworkWidgetData(): ArtworkWidgetData {
+  const data = getLatestArtwork()
+
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_ARTWORK_DATA, data)
+  } catch (e) {
+    console.error('[glasscraft-widget] cache artwork data error:', e)
+  }
+
+  console.log('[glasscraft-widget] getArtworkWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 更新预约提醒服务卡片
+ */
+export function updateBookingWidget(data: BookingWidgetData): void {
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_BOOKING_DATA, data)
+  } catch (e) {
+    console.error('[glasscraft-widget] cache booking data error:', e)
+  }
+
+  console.log('[glasscraft-widget] updateBookingWidget:', JSON.stringify(data))
+
+  try {
+    uni.$emit('glasscraft_booking_widget_data_changed', data)
+  } catch (e) {
+    console.error('[glasscraft-widget] emit booking widget update error:', e)
+  }
+}
+
+/**
+ * 更新作品展示服务卡片
+ */
+export function updateArtworkWidget(data: ArtworkWidgetData): void {
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_ARTWORK_DATA, data)
+  } catch (e) {
+    console.error('[glasscraft-widget] cache artwork data error:', e)
+  }
+
+  console.log('[glasscraft-widget] updateArtworkWidget:', JSON.stringify(data))
+
+  try {
+    uni.$emit('glasscraft_artwork_widget_data_changed', data)
+  } catch (e) {
+    console.error('[glasscraft-widget] emit artwork widget update error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理 — 跳转到预约页面
+ */
+export function onBookingWidgetClick(): void {
+  console.log('[glasscraft-widget] booking widget clicked')
+  try {
+    uni.setStorageSync('glasscraft_widget_click_time', Date.now())
+    uni.setStorageSync('glasscraft_widget_click_target', 'booking')
+  } catch (e) {
+    console.error('[glasscraft-widget] record click error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理 — 跳转到作品页面
+ */
+export function onArtworkWidgetClick(): void {
+  console.log('[glasscraft-widget] artwork widget clicked')
+  try {
+    uni.setStorageSync('glasscraft_widget_click_time', Date.now())
+    uni.setStorageSync('glasscraft_widget_click_target', 'artwork')
+  } catch (e) {
+    console.error('[glasscraft-widget] record click error:', e)
+  }
+}
+
+/**
+ * 卡片生命周期：首次创建
+ */
+export function onWidgetCreate(): void {
+  console.log('[glasscraft-widget] widget created')
+  getBookingWidgetData()
+  getArtworkWidgetData()
+}
+
+/**
+ * 卡片生命周期：销毁
+ */
+export function onWidgetDestroy(): void {
+  console.log('[glasscraft-widget] widget destroyed')
+  try {
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_BOOKING_DATA)
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_ARTWORK_DATA)
+  } catch (e) {
+    console.error('[glasscraft-widget] cleanup error:', e)
+  }
+}

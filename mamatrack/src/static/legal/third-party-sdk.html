@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>第三方 SDK 目录 - MamaTrack</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #FFF5F8;
+      color: #333;
+      line-height: 1.8;
+      padding: 24px 16px;
+      font-size: 15px;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+    h1 {
+      font-size: 22px;
+      color: #E91E8C;
+      text-align: center;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .subtitle {
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .intro {
+      background: #FFF0F5;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      border-left: 4px solid #E91E8C;
+    }
+    .intro p { margin-bottom: 0; }
+    .sdk-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
+    }
+    .sdk-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .sdk-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #E91E8C, #FF6EB4);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .sdk-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #333;
+    }
+    .sdk-provider {
+      font-size: 13px;
+      color: #999;
+    }
+    .sdk-section {
+      margin-top: 12px;
+    }
+    .sdk-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #C2185B;
+      margin-bottom: 6px;
+    }
+    .sdk-section-content {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.7;
+    }
+    ul {
+      margin: 4px 0 0 18px;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    .effective-date {
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #F0F0F0;
+    }
+    strong { color: #C2185B; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>第三方 SDK 目录</h1>
+    <p class="subtitle">MamaTrack 孕期体重曲线管理</p>
+
+    <div class="intro">
+      <p>为保障 MamaTrack 相关功能的实现与应用的稳定运行，我们可能会接入由第三方提供的软件开发包（SDK）。我们会对 SDK 进行严格的安全监测，并要求合作伙伴采取严格的数据保护措施。以下为 MamaTrack 接入的第三方 SDK 目录及相关信息。</p>
+    </div>
+
+    <div class="sdk-card">
+      <div class="sdk-header">
+        <div class="sdk-icon">H</div>
+        <div>
+          <div class="sdk-title">华为 Account Kit</div>
+          <div class="sdk-provider">提供商：华为软件技术有限公司</div>
+        </div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">使用目的</div>
+        <div class="sdk-section-content">提供华为账号一键登录功能，简化用户登录流程。</div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">收集的数据类型</div>
+        <div class="sdk-section-content">
+          <ul>
+            <li>设备标识信息（AAID）</li>
+            <li>华为账号 OpenID</li>
+            <li>设备型号与系统版本</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">隐私政策链接</div>
+        <div class="sdk-section-content">https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/sdk-data-security-0000001050050869</div>
+      </div>
+    </div>
+
+    <div class="sdk-card">
+      <div class="sdk-header">
+        <div class="sdk-icon">C</div>
+        <div>
+          <div class="sdk-title">华为 Cloud DB</div>
+          <div class="sdk-provider">提供商：华为软件技术有限公司</div>
+        </div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">使用目的</div>
+        <div class="sdk-section-content">提供数据云同步服务，确保用户在不同设备间的数据一致性。</div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">收集的数据类型</div>
+        <div class="sdk-section-content">
+          <ul>
+            <li>用户主动同步的健康数据（体重、身高、预产期、产检记录等）</li>
+            <li>设备标识信息</li>
+            <li>应用版本号</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">隐私政策链接</div>
+        <div class="sdk-section-content">https://developer.huawei.com/consumer/cn/doc/development/AppGallery-connect-Guides/agc-clouddb-introduction-0000001059214589</div>
+      </div>
+    </div>
+
+    <div class="sdk-card">
+      <div class="sdk-header">
+        <div class="sdk-icon">S</div>
+        <div>
+          <div class="sdk-title">华为 Cloud Storage</div>
+          <div class="sdk-provider">提供商：华为软件技术有限公司</div>
+        </div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">使用目的</div>
+        <div class="sdk-section-content">提供孕期照片的云存储备份服务。</div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">收集的数据类型</div>
+        <div class="sdk-section-content">
+          <ul>
+            <li>用户主动上传的照片文件</li>
+            <li>照片上传时间戳</li>
+            <li>设备标识信息</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">隐私政策链接</div>
+        <div class="sdk-section-content">https://developer.huawei.com/consumer/cn/doc/development/AppGallery-connect-Guides/agc-cloudstorage-introduction-0000001054840119</div>
+      </div>
+    </div>
+
+    <div class="sdk-card">
+      <div class="sdk-header">
+        <div class="sdk-icon">H</div>
+        <div>
+          <div class="sdk-title">华为运动健康</div>
+          <div class="sdk-provider">提供商：华为软件技术有限公司</div>
+        </div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">使用目的</div>
+        <div class="sdk-section-content">用于体重数据的双向同步，可将智能秤等设备的体重数据同步至 MamaTrack。</div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">收集的数据类型</div>
+        <div class="sdk-section-content">
+          <ul>
+            <li>体重数据（需用户单独授权）</li>
+            <li>数据同步时间戳</li>
+            <li>设备标识信息</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sdk-section">
+        <div class="sdk-section-title">隐私政策链接</div>
+        <div class="sdk-section-content">https://consumer.huawei.com/cn/privacy/health-privacy-statement/</div>
+      </div>
+    </div>
+
+    <div class="intro">
+      <p><strong>特别提示：</strong>以上 SDK 仅在您使用对应功能时才会被调用，我们不会未经您同意收集您的个人信息。您可以在系统设置中撤回对特定 SDK 的授权，撤回授权可能会影响相应功能的正常使用。</p>
+    </div>
+
+    <p class="effective-date">更新日期：2026年4月27日</p>
+  </div>
+</body>
+</html>

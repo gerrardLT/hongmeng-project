@@ -1,0 +1,51 @@
+// PatternCraft 全局设计变量
+
+// ===== 主色调 - 中式传统色系 =====
+$primary-color: #C41A16;    // 故宫红
+$secondary-color: #D4A843;  // 金色
+$accent-color: #7BAA8E;     // 青瓷绿
+
+// ===== 功能色 =====
+$success-color: #4CAF50;
+$warning-color: #FF9800;
+$error-color: #F44336;
+
+// ===== 中性色 =====
+$text-primary: #2C2C2C;     // 墨黑
+$text-secondary: #666666;
+$text-hint: #888888;
+
+$bg-primary: #FFF8F0;       // 宣纸白
+$bg-secondary: #F5F0E8;
+$bg-card: #FFFFFF;
+$border-color: #E8DFD0;
+
+// ===== 间距系统 (8rpx基础) =====
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+
+// ===== 圆角 =====
+$radius-sm: 8rpx;
+$radius-md: 16rpx;
+$radius-lg: 24rpx;
+$radius-pill: 999rpx;
+
+// ===== 字体 =====
+$font-xs: 20rpx;
+$font-sm: 24rpx;
+$font-md: 28rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-xxl: 44rpx;
+
+// ===== 阴影 =====
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+
+// ===== 动画 =====
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;

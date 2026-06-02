@@ -1,0 +1,33 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "首页" } },
+    { "path": "pages/wiki/index", "style": { "navigationBarTitleText": "植物百科" } },
+    { "path": "pages/wiki/detail", "style": { "navigationBarTitleText": "植物详情" } },
+    { "path": "pages/records/index", "style": { "navigationBarTitleText": "生长记录" } },
+    { "path": "pages/records/growth", "style": { "navigationBarTitleText": "记录成长" } },
+    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "我的" } },
+    { "path": "pages/profile/settings", "style": { "navigationBarTitleText": "设置" } },
+    { "path": "pages/login/index", "style": { "navigationBarTitleText": "登录" } },
+    { "path": "pages/webview/index", "style": { "navigationBarTitleText": "" } },
+    { "path": "pages/plant/add", "style": { "navigationBarTitleText": "添加植物" } },
+    { "path": "pages/plant/detail", "style": { "navigationBarTitleText": "植物详情" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "PlantCare",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F5F5F5"
+  },
+  "tabBar": {
+    "color": "#BDBDBD",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/images/tabbar/home.png", "selectedIconPath": "static/images/tabbar/home-active.png" },
+      { "pagePath": "pages/wiki/index", "text": "百科", "iconPath": "static/images/tabbar/wiki.png", "selectedIconPath": "static/images/tabbar/wiki-active.png" },
+      { "pagePath": "pages/records/index", "text": "记录", "iconPath": "static/images/tabbar/record.png", "selectedIconPath": "static/images/tabbar/record-active.png" },
+      { "pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/images/tabbar/profile.png", "selectedIconPath": "static/images/tabbar/profile-active.png" }
+    ]
+  }
+}

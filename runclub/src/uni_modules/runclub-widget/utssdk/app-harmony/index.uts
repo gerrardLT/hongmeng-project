@@ -1,0 +1,308 @@
+/**
+ * RunClub 鸿蒙负一屏服务卡片 UTS 插件
+ *
+ * 本插件仅在鸿蒙端（APP-HARMONY）编译运行，提供服务卡片的数据获取、更新和点击跳转能力。
+ * 由于 UTS 在鸿蒙端编译为 ArkTS，可直接调用鸿蒙原生 API。
+ *
+ * 数据来源：从 App 本地存储中读取活动信息和训练计划，
+ * 组装为 WidgetData 展示在负一屏卡片上。
+ */
+
+// ============================================
+// 类型定义
+// ============================================
+
+/**
+ * 服务卡片展示数据接口
+ */
+export interface WidgetData {
+  /** 即将开始的活动名称 */
+  activityName: string
+  /** 活动时间（格式化后的字符串） */
+  activityTime: string
+  /** 活动距离 (km) */
+  activityDistance: number
+  /** 今日训练内容描述 */
+  todayTraining: string
+  /** 累计总跑量 (km) */
+  totalDistance: number
+}
+
+// ============================================
+// 本地存储键名（与 App 端保持一致，使用 runclub_db_ 前缀）
+// ============================================
+
+const STORAGE_KEYS = {
+  /** 活动数据集合 */
+  ACTIVITIES: 'runclub_db_activities',
+  /** 报名数据集合 */
+  REGISTRATIONS: 'runclub_db_registrations',
+  /** 训练计划集合 */
+  TRAINING_PLANS: 'runclub_db_training_plans',
+  /** 跑步记录集合 */
+  RECORDS: 'runclub_db_records',
+  /** 用户信息 */
+  USER_INFO: 'runclub_user',
+  /** 卡片缓存数据 */
+  WIDGET_DATA: 'runclub_widget_data'
+}
+
+// ============================================
+// 内部工具函数
+// ============================================
+
+/**
+ * 从本地存储读取对象数据
+ * @param key 存储键名
+ * @returns 解析后的对象，失败返回 null
+ */
+function getStorageObject<T>(key: string): T | null {
+  try {
+    const raw = uni.getStorageSync(key)
+    if (!raw) return null
+    // uni.getStorageSync 在不同平台可能返回字符串或已解析对象
+    if (typeof raw === 'string') return JSON.parse(raw) as T
+    return raw as T
+  } catch (e) {
+    console.error('[runclub-widget] getStorageObject error:', e)
+    return null
+  }
+}
+
+/**
+ * 获取当前登录用户 ID
+ * 从 runclub_user 存储中读取已持久化的用户状态
+ */
+function getCurrentUserId(): string {
+  try {
+    const userState = uni.getStorageSync(STORAGE_KEYS.USER_INFO) as {
+      userInfo?: { userId?: string } | null
+      isLoggedIn?: boolean
+    } | null
+    if (userState && userState.isLoggedIn && userState.userInfo) {
+      return userState.userInfo.userId || 'default_user'
+    }
+    return 'default_user'
+  } catch (e) {
+    console.error('[runclub-widget] getCurrentUserId error:', e)
+    return 'default_user'
+  }
+}
+
+/**
+ * 获取即将开始的活动
+ * 从活动列表中筛选状态为 upcoming 且时间最近的一个活动
+ */
+function getUpcomingActivity(): { name: string; time: string; distance: number } | null {
+  const activities = getStorageObject<Record<string, any>>(STORAGE_KEYS.ACTIVITIES)
+  if (!activities) return null
+
+  const now = Date.now()
+  const upcomingList = Object.values(activities)
+    .filter((a: any) => a.status === 'upcoming')
+    .sort((a: any, b: any) => {
+      // 按活动日期升序排列，取最近的
+      const dateA = new Date(`${a.date} ${a.time || '00:00'}`).getTime()
+      const dateB = new Date(`${b.date} ${b.time || '00:00'}`).getTime()
+      return dateA - dateB
+    })
+
+  if (upcomingList.length === 0) return null
+
+  const next = upcomingList[0] as any
+  // 格式化活动时间为可读字符串
+  const activityTime = next.time ? `${next.date} ${next.time}` : next.date
+
+  return {
+    name: next.name || '未命名活动',
+    time: activityTime,
+    distance: next.distance || 0
+  }
+}
+
+/**
+ * 获取今日训练内容
+ * 根据当前活跃训练计划和今日日期，计算对应的训练安排
+ */
+function getTodayTraining(): string {
+  const plans = getStorageObject<Record<string, any>>(STORAGE_KEYS.TRAINING_PLANS)
+  if (!plans) return '暂无训练计划'
+
+  const userId = getCurrentUserId()
+
+  // 查找当前用户的活跃训练计划
+  const activePlan = Object.values(plans).find(
+    (p: any) => p.userId === userId && p.status === 'active'
+  ) as any | null
+
+  if (!activePlan) return '暂无训练计划'
+
+  // 计算今天是训练计划的第几天
+  const startDate = new Date(activePlan.startDate)
+  const today = new Date()
+  const diffDays = Math.floor((today.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000))
+
+  // 检查是否在计划周期内
+  if (diffDays < 0) return `计划将于 ${activePlan.startDate} 开始`
+  if (!activePlan.schedule || diffDays >= activePlan.schedule.length) return '训练计划已结束'
+
+  const todaySchedule = activePlan.schedule[diffDays]
+  if (!todaySchedule) return '暂无训练安排'
+
+  // 训练类型中文映射
+  const typeMap: Record<string, string> = {
+    rest: '休息日',
+    easy: '轻松跑',
+    tempo: '节奏跑',
+    long: '长距离',
+    interval: '间歇跑',
+    recovery: '恢复跑'
+  }
+
+  const typeName = typeMap[todaySchedule.type] || todaySchedule.type
+  const distanceInfo = todaySchedule.distance ? ` ${todaySchedule.distance}km` : ''
+  const completedMark = todaySchedule.completed ? ' ✓' : ''
+
+  return `${typeName}${distanceInfo}${completedMark}`
+}
+
+/**
+ * 计算用户总跑量
+ * 从跑步记录中累计当前用户的所有跑步距离
+ */
+function calculateTotalDistance(): number {
+  const records = getStorageObject<Record<string, any>>(STORAGE_KEYS.RECORDS)
+  if (!records) return 0
+
+  const userId = getCurrentUserId()
+  const userRecords = Object.values(records).filter((r: any) => r.userId === userId)
+
+  const total = userRecords.reduce((sum: number, r: any) => sum + (r.distance || 0), 0)
+  return Math.round(total * 10) / 10
+}
+
+// ============================================
+// 对外导出接口
+// ============================================
+
+/**
+ * 获取卡片展示数据
+ *
+ * 从 App 本地存储中读取即将开始的活动、今日训练计划和总跑量，
+ * 组装为 WidgetData 返回给服务卡片渲染使用。
+ *
+ * @returns WidgetData 卡片展示数据
+ */
+export function getWidgetData(): WidgetData {
+  const upcoming = getUpcomingActivity()
+  const data: WidgetData = {
+    activityName: upcoming?.name || '暂无活动',
+    activityTime: upcoming?.time || '--',
+    activityDistance: upcoming?.distance || 0,
+    todayTraining: getTodayTraining(),
+    totalDistance: calculateTotalDistance()
+  }
+
+  // 将当前卡片数据缓存到本地，供卡片定时刷新时使用
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[runclub-widget] cache widget data error:', e)
+  }
+
+  console.log('[runclub-widget] getWidgetData:', JSON.stringify(data))
+  return data
+}
+
+/**
+ * 更新服务卡片内容
+ *
+ * 将最新的 WidgetData 同步到鸿蒙服务卡片。
+ * 实际实现中需要调用鸿蒙 FormManager 的 updateForm 接口。
+ *
+ * @param data 最新的卡片展示数据
+ */
+export function updateWidget(data: WidgetData): void {
+  // 1. 先缓存到本地存储
+  try {
+    uni.setStorageSync(STORAGE_KEYS.WIDGET_DATA, data)
+  } catch (e) {
+    console.error('[runclub-widget] cache widget data error:', e)
+  }
+
+  // 2. 调用鸿蒙原生接口更新服务卡片（模拟实现）
+  // 实际真机环境中，需要通过 FormManager 获取当前 formId 并触发更新
+  // 示例：
+  // import formManager from '@ohos.app.form.formManager';
+  // import formBindingData from '@ohos.app.form.formBindingData';
+  // formManager.updateForm(formId, formBindingData.createFormBindingData(data));
+
+  console.log('[runclub-widget] updateWidget:', JSON.stringify(data))
+
+  // 触发自定义事件通知卡片刷新（UTS 层向 ArkUI 卡片通信）
+  try {
+    uni.$emit('runclub_widget_data_changed', data)
+  } catch (e) {
+    console.error('[runclub-widget] emit widget update error:', e)
+  }
+}
+
+/**
+ * 卡片点击处理
+ *
+ * 用户点击服务卡片时，唤起 RunClub App 并跳转到首页。
+ * 实际实现中需要调用鸿蒙 Want 机制进行应用跳转。
+ */
+export function onWidgetClick(): void {
+  console.log('[runclub-widget] widget clicked, launching app...')
+
+  // 鸿蒙端通过 Want 机制启动应用
+  // 记录点击时间和目标页面，App 启动时读取并跳转
+  try {
+    uni.setStorageSync('runclub_widget_click_time', Date.now())
+    uni.setStorageSync('runclub_widget_target_page', '/pages/index/index')
+  } catch (e) {
+    console.error('[runclub-widget] record click time error:', e)
+  }
+
+  // 实际真机环境中，应使用如下方式启动应用：
+  // import Want from '@ohos.app.ability.Want';
+  // const want: Want = {
+  //   bundleName: 'com.runclub.app',
+  //   abilityName: 'EntryAbility',
+  //   parameters: {
+  //     fromWidget: true,
+  //     targetPage: '/pages/index/index'
+  //   }
+  // };
+  // context.startAbility(want);
+}
+
+/**
+ * 卡片生命周期：首次创建
+ *
+ * 服务卡片被添加到桌面/负一屏时调用，初始化卡片数据。
+ * 此时应从本地存储加载最新数据并渲染到卡片上。
+ */
+export function onWidgetCreate(): void {
+  console.log('[runclub-widget] widget created, initializing data...')
+  // 首次创建时获取并缓存最新数据
+  getWidgetData()
+}
+
+/**
+ * 卡片生命周期：销毁
+ *
+ * 服务卡片被移除时调用，执行清理操作。
+ * 清除卡片相关的缓存数据，释放存储空间。
+ */
+export function onWidgetDestroy(): void {
+  console.log('[runclub-widget] widget destroyed, cleaning up...')
+  try {
+    uni.removeStorageSync(STORAGE_KEYS.WIDGET_DATA)
+    uni.removeStorageSync('runclub_widget_click_time')
+    uni.removeStorageSync('runclub_widget_target_page')
+  } catch (e) {
+    console.error('[runclub-widget] cleanup error:', e)
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "campready-widget",
+  "displayName": "CampReady 服务卡片",
+  "version": "1.0.0",
+  "description": "CampReady 鸿蒙负一屏服务卡片，展示露营倒计时、准备进度和快捷清单入口",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

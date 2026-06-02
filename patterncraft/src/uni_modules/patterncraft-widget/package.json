@@ -1,0 +1,14 @@
+{
+  "id": "patterncraft-widget",
+  "displayName": "PatternCraft 服务卡片",
+  "version": "1.0.0",
+  "description": "PatternCraft 中式纹样设计工具的鸿蒙负一屏服务卡片",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

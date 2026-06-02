@@ -1,0 +1,80 @@
+// PetMeet 全局设计变量
+
+// ===== 色彩系统 =====
+// 主色：宠物橙
+$primary-color: #FF6B35;
+$primary-light: #FF8C5A;
+$primary-lighter: #FFF3ED;
+$primary-dark: #E55A2B;
+
+// 辅助色：清新绿
+$secondary-color: #4ECDC4;
+$secondary-light: #7EDCD6;
+
+// 功能色
+$success-color: #27AE60;
+$warning-color: #F39C12;
+$error-color: #E74C3C;
+$info-color: #3498DB;
+
+// 中性色
+$bg-color: #F8F9FA;
+$bg-card: #FFFFFF;
+$bg-grey: #F0F0F0;
+
+// 文字色
+$text-primary: #2D3436;
+$text-secondary: #636E72;
+$text-light: #B2BEC3;
+$text-white: #FFFFFF;
+$text-link: #FF6B35;
+
+// 边框色
+$border-color: #E8E8E8;
+$border-light: #F0F0F0;
+
+// ===== 间距系统 =====
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+$spacing-xxl: 64rpx;
+
+// ===== 圆角系统 =====
+$radius-xs: 4rpx;
+$radius-sm: 8rpx;
+$radius-md: 16rpx;
+$radius-lg: 24rpx;
+$radius-xl: 32rpx;
+$radius-round: 50%;
+$radius-pill: 999rpx;
+
+// ===== 字体大小 =====
+$font-xs: 22rpx;
+$font-sm: 24rpx;
+$font-md: 28rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-xxl: 44rpx;
+$font-title: 48rpx;
+
+// ===== 字重 =====
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 600;
+
+// ===== 阴影 =====
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+$shadow-primary: 0 8rpx 24rpx rgba(255, 107, 53, 0.3);
+
+// ===== 动画 =====
+$transition-fast: 0.15s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// ===== 安全区域 =====
+$safe-bottom: env(safe-area-inset-bottom);
+$safe-top: env(safe-area-inset-top);

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FBF8F5"/>
+  
+    <!-- 宣纸边框 -->
+    <rect x="30" y="30" width="340" height="260" rx="4" fill="none" stroke="#D4C5A9" stroke-width="2"/>
+    <rect x="36" y="36" width="328" height="248" rx="2" fill="none" stroke="#D4C5A9" stroke-width="1"/>
+    <!-- 字体名称 -->
+    <text x="200" y="80" text-anchor="middle" font-size="20" fill="#C41A1A" font-family="sans-serif">行书</text>
+    <!-- 示例文字 -->
+    <text x="200" y="180" text-anchor="middle" font-size="56" font-weight="bold" fill="#2C2C2C" font-family="serif">上善若水</text>
+    <!-- 分隔线 -->
+    <line x1="80" y1="240" x2="320" y2="240" stroke="#D4C5A9" stroke-width="1"/>
+    <!-- 底部说明 -->
+    <text x="200" y="330" text-anchor="middle" font-size="20" fill="#888" font-family="sans-serif">行书示例</text>
+    <text x="200" y="360" text-anchor="middle" font-size="14" fill="#BBB" font-family="sans-serif">SealCraft · 印章字体</text>
+</svg>

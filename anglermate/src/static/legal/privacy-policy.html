@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>隐私政策 - AnglerMate</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #333;
+      background: #f7f8fa;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #222;
+      margin: 28px 0 12px;
+      padding-left: 10px;
+      border-left: 3px solid #FF6B35;
+    }
+    h2:first-of-type { margin-top: 0; }
+    p {
+      margin-bottom: 12px;
+      text-align: justify;
+      word-break: break-word;
+    }
+    .intro {
+      background: #fff5f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #e8e8e8;
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf5f2;
+      font-weight: 600;
+      color: #444;
+    }
+    td { color: #555; }
+    ul, ol {
+      margin: 10px 0 10px 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .highlight {
+      background: #fff7e6;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .highlight strong {
+      color: #d46b08;
+    }
+    .footer {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+    }
+    .contact {
+      margin-top: 8px;
+      color: #666;
+    }
+    .contact p {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AnglerMate 隐私政策</h1>
+    <p class="subtitle">版本日期：2026年4月</p>
+
+    <h2>一、引言</h2>
+    <div class="intro">
+      <p>欢迎您使用 AnglerMate 钓鱼天气钓点记录（以下简称"本应用"）。本应用是一款面向钓鱼爱好者的综合工具，提供钓鱼天气查询、潮汐月相信息、钓点管理、渔获记录及数据统计等功能。我们高度重视您的个人信息和隐私保护。本政策将帮助您了解我们如何收集、使用、存储和保护您的个人信息。请您在使用本应用前仔细阅读并理解本政策。</p>
+    </div>
+
+    <h2>二、信息收集与使用</h2>
+    <p>为向您提供本应用的核心功能，我们可能收集以下个人信息：</p>
+    <table>
+      <tr>
+        <th>信息类型</th>
+        <th>用途说明</th>
+        <th>必要性</th>
+      </tr>
+      <tr>
+        <td>位置信息</td>
+        <td>用于记录钓点位置、获取当地天气与潮汐数据、在地图上展示钓点</td>
+        <td>核心功能必需</td>
+      </tr>
+      <tr>
+        <td>照片数据</td>
+        <td>用于钓点环境记录和渔获拍照记录，丰富您的钓鱼日志</td>
+        <td>可选功能</td>
+      </tr>
+      <tr>
+        <td>账号信息</td>
+        <td>通过华为账号登录认证，实现数据云同步和多设备访问</td>
+        <td>云同步功能必需</td>
+      </tr>
+      <tr>
+        <td>设备信息</td>
+        <td>用于应用适配优化、问题诊断和版本兼容性处理</td>
+        <td>基础运行必需</td>
+      </tr>
+    </table>
+
+    <h2>三、数据存储与安全</h2>
+    <p>我们采取多重措施保障您的数据安全：</p>
+    <ul>
+      <li><strong>Cloud DB 加密</strong>：同步至华为 Cloud DB 的数据（钓点、渔获记录等）均采用加密传输和加密存储，确保云端数据安全</li>
+      <li><strong>Cloud Storage 云端加密</strong>：上传至华为 Cloud Storage 的照片文件采用服务端加密存储，传输过程使用 TLS/SSL 加密</li>
+      <li><strong>本地缓存</strong>：应用在设备本地缓存部分数据以提升使用体验，本地敏感数据采用 AES-256 加密存储</li>
+      <li><strong>数据最小化</strong>：我们仅收集实现功能所必需的最少数据，并在达到目的后及时删除或匿名化</li>
+      <li><strong>访问控制</strong>：采取严格的访问控制和日志审计措施，防止数据泄露、篡改或丢失</li>
+    </ul>
+
+    <h2>四、第三方服务</h2>
+    <p>本应用集成以下第三方服务以提供核心功能：</p>
+    <table>
+      <tr>
+        <th>服务名称</th>
+        <th>提供方</th>
+        <th>用途</th>
+      </tr>
+      <tr>
+        <td>华为 Account Kit</td>
+        <td>华为软件技术有限公司</td>
+        <td>华为账号登录认证</td>
+      </tr>
+      <tr>
+        <td>华为 Cloud DB</td>
+        <td>华为软件技术有限公司</td>
+        <td>云端数据存储与同步</td>
+      </tr>
+      <tr>
+        <td>华为 Cloud Storage</td>
+        <td>华为软件技术有限公司</td>
+        <td>照片文件云端存储</td>
+      </tr>
+      <tr>
+        <td>华为 Map Kit</td>
+        <td>华为软件技术有限公司</td>
+        <td>地图显示与钓点定位导航</td>
+      </tr>
+      <tr>
+        <td>华为 Intent Kit</td>
+        <td>华为软件技术有限公司</td>
+        <td>意图框架与智能提醒服务</td>
+      </tr>
+      <tr>
+        <td>和风天气 API</td>
+        <td>和风天气</td>
+        <td>天气数据、潮汐月相信息查询</td>
+      </tr>
+    </table>
+    <p>上述第三方服务的数据处理受各自隐私政策约束，详情请参阅本应用内的"第三方 SDK 目录"页面。</p>
+
+    <h2>五、数据共享</h2>
+    <div class="highlight">
+      <strong>重要声明：</strong>我们不会出售、出租或以其他商业方式向第三方提供您的个人数据。除以下情形外，我们不会向任何第三方共享您的个人信息：
+    </div>
+    <ul>
+      <li>获得您的明确授权同意</li>
+      <li>根据法律法规、诉讼争议解决需要，或行政、司法机关依法提出的要求</li>
+      <li>为实现本政策所述功能，与上述第三方服务提供方共享必要信息</li>
+    </ul>
+
+    <h2>六、用户权利</h2>
+    <p>根据相关法律法规，您对自己的个人信息享有以下权利：</p>
+    <ul>
+      <li><strong>查看权</strong>：您可以随时在应用内查看您的钓点记录、渔获数据等个人信息</li>
+      <li><strong>导出权</strong>：您有权导出您的个人数据副本，包括钓点、渔获记录及统计数据</li>
+      <li><strong>删除权</strong>：您可以删除单条或全部数据记录，也可要求我们删除服务器端的数据</li>
+      <li><strong>注销权</strong>：您可以在应用内申请注销账号，注销后我们将在 30 个工作日内删除您的所有个人数据</li>
+    </ul>
+    <p>行使上述权利，请通过本政策末尾的联系方式与我们取得联系。</p>
+
+    <h2>七、未成年人保护</h2>
+    <p>本应用主要面向年满 18 周岁的成年人。如果您是未满 18 周岁的未成年人，请在监护人指导下使用本应用，并确保监护人已阅读并同意本隐私政策。我们不会主动识别未成年人的身份，但建议监护人关注未成年人的应用使用情况。钓鱼活动涉及户外安全，未成年人须在成年人陪同下进行。</p>
+
+    <h2>八、政策更新</h2>
+    <p>我们可能会不时修订本隐私政策。更新后的政策将在应用内显著位置公布，并注明最新修订日期。如您在本政策更新后继续使用本应用，即视为您已阅读并接受修订后的政策。重大变更我们将通过应用内通知或弹窗方式提醒您。</p>
+
+    <h2>九、联系方式</h2>
+    <div class="contact">
+      <p>如您对本隐私政策有任何疑问、意见或建议，或希望行使您的个人信息权利，请通过以下方式联系我们：</p>
+      <p>电子邮箱：support@anglermate.com</p>
+      <p>反馈入口：应用内【我的】→【关于 AnglerMate】→【意见反馈】</p>
+      <p>我们将在收到您的请求后 15 个工作日内予以回复。</p>
+    </div>
+
+    <div class="footer">
+      <p>AnglerMate 团队 版权所有</p>
+      <p>本政策最终解释权归 AnglerMate 所有</p>
+    </div>
+  </div>
+</body>
+</html>

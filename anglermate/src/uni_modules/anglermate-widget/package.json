@@ -1,0 +1,14 @@
+{
+  "id": "anglermate-widget",
+  "displayName": "AnglerMate 服务卡片",
+  "version": "1.0.0",
+  "description": "AnglerMate 鸿蒙负一屏服务卡片，展示今日钓鱼指数、最近钓点和快捷记录入口",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

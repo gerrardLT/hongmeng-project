@@ -1,0 +1,20 @@
+{
+  "id": "culturebox-widget",
+  "displayName": "CultureBox 服务卡片",
+  "version": "1.0.0",
+  "description": "CultureBox 鸿蒙服务卡片插件",
+  "uni_modules": {
+    "type": "uts",
+    "dependencies": [],
+    "encrypt": [],
+    "platforms": {
+      "cloud": { "tcb": "y", "aliyun": "y" },
+      "client": {
+        "App": { "app-harmony": "u" }
+      },
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

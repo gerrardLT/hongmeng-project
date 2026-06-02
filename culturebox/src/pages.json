@@ -1,0 +1,92 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": { "navigationBarTitleText": "首页" }
+    },
+    {
+      "path": "pages/login/index",
+      "style": { "navigationBarTitleText": "登录" }
+    },
+    {
+      "path": "pages/browse/index",
+      "style": { "navigationBarTitleText": "浏览" }
+    },
+    {
+      "path": "pages/review/index",
+      "style": { "navigationBarTitleText": "年度回顾" }
+    },
+    {
+      "path": "pages/exchange/index",
+      "style": { "navigationBarTitleText": "交换" }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": { "navigationBarTitleText": "我的" }
+    },
+    {
+      "path": "pages/profile/settings",
+      "style": { "navigationBarTitleText": "设置" }
+    },
+    {
+      "path": "pages/entry/add",
+      "style": { "navigationBarTitleText": "添加条目" }
+    },
+    {
+      "path": "pages/entry/detail",
+      "style": { "navigationBarTitleText": "条目详情" }
+    },
+    {
+      "path": "pages/entry/edit",
+      "style": { "navigationBarTitleText": "编辑条目" }
+    },
+    {
+      "path": "pages/webview/index",
+      "style": { "navigationBarTitleText": "文档" }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "CultureBox",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#FAF8F5"
+  },
+  "tabBar": {
+    "color": "#B0B0B0",
+    "selectedColor": "#8B6914",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/browse/index",
+        "text": "浏览",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/review/index",
+        "text": "回顾",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/exchange/index",
+        "text": "交换",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "",
+        "selectedIconPath": ""
+      }
+    ]
+  }
+}

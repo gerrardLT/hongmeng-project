@@ -1,0 +1,14 @@
+{
+  "id": "glasscraft-widget",
+  "displayName": "GlassCraft 服务卡片",
+  "version": "1.0.0",
+  "description": "GlassCraft 鸿蒙负一屏服务卡片，展示预约提醒和作品展示信息",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

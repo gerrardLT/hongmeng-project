@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FFFFFF"/>
+  
+    <!-- 空印章盒 -->
+    <rect x="120" y="100" width="160" height="140" rx="12" fill="none" stroke="#D0D0D0" stroke-width="3" stroke-dasharray="8,4"/>
+    <text x="200" y="185" text-anchor="middle" font-size="48" fill="#D0D0D0" font-family="serif">印</text>
+    <!-- 文字 -->
+    <text x="200" y="300" text-anchor="middle" font-size="24" fill="#BBBBBB" font-family="sans-serif">暂无内容</text>
+    <text x="200" y="340" text-anchor="middle" font-size="18" fill="#D0D0D0" font-family="sans-serif">开始您的印章之旅吧</text>
+</svg>

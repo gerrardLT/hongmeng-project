@@ -1,0 +1,14 @@
+{
+  "id": "pet-widget",
+  "displayName": "PetMeet 服务卡片",
+  "version": "1.0.0",
+  "description": "PetMeet 鸿蒙负一屏服务卡片，展示宠物信息、最近日记和宠友数量",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

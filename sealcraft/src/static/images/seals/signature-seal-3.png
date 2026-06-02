@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FFFFFF"/>
+  <!-- 方形印章 -->
+    <rect x="130" y="110" width="140" height="140" rx="8" fill="none" stroke="#C41A1A" stroke-width="6"/>
+    <rect x="142" y="122" width="116" height="116" rx="4" fill="none" stroke="#C41A1A" stroke-width="2"/>
+    <text x="200" y="192" text-anchor="middle" font-size="48" font-weight="bold" fill="#C41A1A" font-family="serif">签名</text>
+    <text x="200" y="310" text-anchor="middle" font-size="24" fill="#2C2C2C" font-family="sans-serif">签名章</text>
+    <text x="200" y="340" text-anchor="middle" font-size="16" fill="#999" font-family="sans-serif">SealCraft · 示例3</text>
+</svg>

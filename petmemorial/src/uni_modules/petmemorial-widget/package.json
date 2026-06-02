@@ -1,0 +1,14 @@
+{
+  "id": "petmemorial-widget",
+  "displayName": "PetMemorial 服务卡片",
+  "version": "1.0.0",
+  "description": "PetMemorial 鸿蒙负一屏服务卡片，展示预约提醒、制作进度和宠物纪念日信息",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}

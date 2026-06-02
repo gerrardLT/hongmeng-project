@@ -1,0 +1,14 @@
+{
+  "id": "coloraid-widget",
+  "displayName": "ColorAid 服务卡片",
+  "version": "1.0.0",
+  "description": "ColorAid色盲色弱辅助滤镜应用的鸿蒙负一屏服务卡片",
+  "uni_modules": {
+    "type": "uts",
+    "platforms": {
+      "app-harmony": {
+        "formAbility": true
+      }
+    }
+  }
+}
